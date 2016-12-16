@@ -131,6 +131,44 @@
       ::dt/column-label "Name"}]]])
 
 
+(defn css-options []
+  [:div.ui.section
+   [:h3.ui.dividing.header "CSS options"]
+   [:p
+    "HTML table that will be generated will have a standard structure:"
+    [:pre
+     [:code {:class "html"}
+      "<table>
+  <thead>
+    <tr><th>...</th><tr>
+  </thead>
+  <tbody>
+    <tr><td>...</td></tr>
+    ...
+  </tbody>
+</table>
+"]]
+
+    "To avoid drilling too many \"holes\" in datatable most of the styling should be done in CSS via CSS selectors based on this structure.
+    To enable that, datatable allows to provide a vector of CSS classes that should be applied to "
+    [:code.inline-code "<table>"] " HTML tag, and the rest can be done via CSS selectors."]
+   [:p "To provide CSS classes that should be applied to <table> tag, use "
+    [:code.inline-code "::table-classes"] " key in options as shown in example. Further styling can be provided via CSS selectors:"
+    [:pre
+     [:code {:class "css"}
+      ".ui.table > thead > th { color: red; } "]]]
+
+   [tabs-wrapper
+    :css-options
+    [::subs/songs-list]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}]
+    {::dt/table-classes ["ui" "celled" "stripped" "table"]}]])
+
+
+
 (defn main-panel []
   (reagent/create-class
     {:component-function
@@ -140,7 +178,9 @@
 
         [usage-section]
 
-        [basic-definition]])
+        [basic-definition]
+
+        [css-options]])
 
 
      :component-did-mount
