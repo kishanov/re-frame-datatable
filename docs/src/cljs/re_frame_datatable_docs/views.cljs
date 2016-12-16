@@ -36,10 +36,9 @@
 
 
 (defn formatted-code [data]
-  [:small
-   [:pre
-    [:code {:class "clojure"}
-     (with-out-str (pp/pprint data))]]])
+  [:pre
+   [:code {:class "clojure"}
+    (with-out-str (pp/pprint data))]])
 
 
 
@@ -67,12 +66,33 @@
          [:div.ui.bottom.attached.tab.segment
           {:data-tab source-dom-id}
           [formatted-code
-           (vec (cons ::re-frame-datatable.core/datatable
+           (vec (cons `re-frame-datatable.core/datatable
                       (->> dt-def (rest) (filter (complement nil?)))))]]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab data-dom-id}
           [formatted-code @data]]]))))
+
+
+
+(defn usage-section []
+  [:div.ui.section
+   [:h3.ui.dividing.header "Usage"]
+   [:p "re-frame-datatable should used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
+   [:pre
+    [:code {:class "clojure"}
+     "(:require [re-frame-datatable.core :as dt])"]]
+
+   [:p "Then define a Reagent component which uses a datatable:"]
+
+   [:pre
+    [:code {:class "clojure"}
+     "(defn my-component []
+     datatable-key ; a keyword, that will be used in re-frame's `app-db` to store datatable state
+     subscription-vec ; a vector, which will be used by datatable to render data via `(re-frame/subscribe subscription-vec)`
+     columns-def ; a vector of maps, that defines how each column of datatable should look like
+     options ; optional map of additional options)"]]])
+
 
 
 (defn main-panel []
@@ -87,20 +107,12 @@
           "re-frame-datatable"
           [:div.sub.header "DataTable component for re-frame 0.8.0+"]]
 
-         [:div.ui.section
-          [:h3.ui.dividing.header ""]
-          [tabs-wrapper
-           :basic-usage
-           [::subs/songs-list]
-           [{::dt/column-key   [:index]
-             ::dt/column-label "#"}
-            {::dt/column-key   [:name]
-             ::dt/column-label "Name"}]]]
+         [usage-section]
 
          [:div.ui.section
-          [:h3.ui.dividing.header "Basic usage"]
+          [:h3.ui.dividing.header "Basic definition"]
           [tabs-wrapper
-           :basic-usage
+           :basic-definition
            [::subs/songs-list]
            [{::dt/column-key   [:index]
              ::dt/column-label "#"}
