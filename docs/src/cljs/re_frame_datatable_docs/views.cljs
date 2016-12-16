@@ -196,6 +196,34 @@
      ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
 
 
+(defn sorting []
+  [:div.ui.section
+   [:h3.ui.dividing.header "Sorting"]
+   [:p
+    "Sorting is enabled on per-column basis. To make column sortable just add "
+    [:code.inline-code "::sorting"] " with the value "
+    [:code.inline-code "{::enabled? true}"] " to particular column definition in "
+    [:code.inline-code "columns-def"] " vector. "
+    "In the example below, index and play_count columns are made sortable."]
+
+   [:div.ui.info.message
+    [:i.info.circle.icon]
+    " To sort table, click on a column header (for the column on which sorting was enabled)"]
+
+   [tabs-wrapper
+    :sorting
+    [::subs/songs-list]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"
+      ::dt/sorting      {::dt/enabled? true}}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"
+      ::dt/sorting      {::dt/enabled? true}}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+
+
 
 (defn main-panel []
   (reagent/create-class
@@ -203,14 +231,11 @@
      (fn []
        [:div.ui.main.text.container
         [main-header]
-
         [usage-section]
-
         [basic-definition]
-
         [css-options]
-
-        [pagination]])
+        [pagination]
+        [sorting]])
 
 
      :component-did-mount
