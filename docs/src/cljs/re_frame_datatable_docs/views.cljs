@@ -78,7 +78,7 @@
 (defn usage-section []
   [:div.ui.section
    [:h3.ui.dividing.header "Usage"]
-   [:p "re-frame-datatable should used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
+   [:p "re-frame-datatable should be used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
    [:pre
     [:code {:class "clojure"}
      "(:require [re-frame-datatable.core :as dt])"]]
@@ -94,30 +94,47 @@
      options ; optional map of additional options)"]]])
 
 
+(defn main-header []
+  [:div.ui.grid
+   [:div.twelve.wide.column
+    [:h1.ui.header
+     {:style {:margin-bottom "2em"
+              :margin-top    "1em"}}
+     "re-frame-datatable"
+     [:div.sub.header "DataTable component for re-frame 0.8.0+"]]]
+   [:div.four.wide.column
+    [:div
+     [:div.ui.right.floated.menu
+      {:style {:margin-top "2em"}}
+      [:a.item
+       {:href          "https://github.com/kishanov/re-frame-datatable"
+        :data-tooltip  "View project on GitHub"
+        :data-position "bottom center"}
+       [:i.github.icon]]]]]])
+
+
+(defn basic-definition []
+  [:div.ui.section
+   [:h3.ui.dividing.header "Basic definition"]
+   [tabs-wrapper
+    :basic-definition
+    [::subs/songs-list]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}]]])
+
 
 (defn main-panel []
   (reagent/create-class
     {:component-function
      (fn []
-       [:div
-        [:div.ui.main.text.container
-         [:h1.ui.header
-          {:style {:margin-bottom "2em"
-                   :margin-top    "1em"}}
-          "re-frame-datatable"
-          [:div.sub.header "DataTable component for re-frame 0.8.0+"]]
+       [:div.ui.main.text.container
+        [main-header]
 
-         [usage-section]
+        [usage-section]
 
-         [:div.ui.section
-          [:h3.ui.dividing.header "Basic definition"]
-          [tabs-wrapper
-           :basic-definition
-           [::subs/songs-list]
-           [{::dt/column-key   [:index]
-             ::dt/column-label "#"}
-            {::dt/column-key   [:name]
-             ::dt/column-label "Name"}]]]]])
+        [basic-definition]])
 
 
      :component-did-mount
