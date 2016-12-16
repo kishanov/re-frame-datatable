@@ -169,6 +169,28 @@
 
 
 
+(defn pagination []
+  [:div.ui.section
+   [:h3.ui.dividing.header "Pagination"]
+   [:p
+    "Pagination can be enabled via " [:code.inline-code "::pagination"] " key. There are 2 options:"
+    [:ul.ui.list
+     [:li [:code.inline-code "enabled?"] " - boolean to define if pagination should be enabled"]
+     [:li [:code.inline-code "per-page"] " - integer to define how many elements should be shown per page (default is 10)"]]]
+
+   [tabs-wrapper
+    :pagination
+    [::subs/songs-list]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}]
+    {::dt/pagination    {::dt/enabled? true
+                         ::dt/per-page 5}
+     ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+
+
+
 (defn main-panel []
   (reagent/create-class
     {:component-function
@@ -180,7 +202,9 @@
 
         [basic-definition]
 
-        [css-options]])
+        [css-options]
+
+        [pagination]])
 
 
      :component-did-mount
