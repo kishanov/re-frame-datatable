@@ -128,7 +128,9 @@
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
-      ::dt/column-label "Name"}]]])
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]]])
 
 
 (defn css-options []
@@ -164,7 +166,9 @@
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
-      ::dt/column-label "Name"}]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
     {::dt/table-classes ["ui" "celled" "stripped" "table"]}]])
 
 
@@ -184,7 +188,9 @@
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
-      ::dt/column-label "Name"}]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
     {::dt/pagination    {::dt/enabled? true
                          ::dt/per-page 5}
      ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
