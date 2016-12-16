@@ -1,3 +1,8 @@
 .ui.section {
     margin-bottom: 2.5em;
 }
+
+.inline-code {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
+}

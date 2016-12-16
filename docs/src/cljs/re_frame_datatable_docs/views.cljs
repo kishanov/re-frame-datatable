@@ -116,6 +116,12 @@
 (defn basic-definition []
   [:div.ui.section
    [:h3.ui.dividing.header "Basic definition"]
+   [:p
+    "There are only 2 mandatory definitions that should be provided for each map in "
+    [:code.inline-code "columns-def"] " vector:"
+    [:ul.ui.list
+     [:li [:code.inline-code "::column-key"] " - a vector that is used to access value of each item via " [:code "get-in"]]
+     [:li [:code.inline-code "::column-label"] " - a string that will be a header for a column"]]]
    [tabs-wrapper
     :basic-definition
     [::subs/songs-list]
