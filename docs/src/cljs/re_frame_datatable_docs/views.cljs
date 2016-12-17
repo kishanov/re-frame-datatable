@@ -50,7 +50,7 @@
 
     (fn []
       (let [dt-def [dt/datatable dt-id subscription columns-def options]]
-        [:div
+        [:div {:style {:margin-top "2em"}}
          [:div.ui.top.attached.tabular.menu
           [:a.active.item
            {:data-tab example-dom-id} "Example"]
@@ -76,9 +76,8 @@
 
 
 (defn usage-section []
-  [:div.ui.section
-   [:h3.ui.dividing.header "Usage"]
-   [:p "re-frame-datatable should be used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
+  [:div
+   [:div "re-frame-datatable should be used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
    [:pre
     [:code {:class "clojure"}
      "(:require [re-frame-datatable.core :as dt])"]]
@@ -114,9 +113,8 @@
 
 
 (defn basic-definition []
-  [:div.ui.section
-   [:h3.ui.dividing.header "Basic definition"]
-   [:p
+  [:div
+   [:div
     "There are only 2 mandatory definitions that should be provided for each map in "
     [:code.inline-code "columns-def"] " vector:"
     [:ul.ui.list
@@ -134,9 +132,8 @@
 
 
 (defn css-options []
-  [:div.ui.section
-   [:h3.ui.dividing.header "CSS options"]
-   [:p
+  [:div
+   [:div
     "HTML table that will be generated will have a standard structure:"
     [:pre
      [:code {:class "html"}
@@ -154,7 +151,7 @@
     "To avoid drilling too many \"holes\" in datatable most of the styling should be done in CSS via CSS selectors based on this structure.
     To enable that, datatable allows to provide a vector of CSS classes that should be applied to "
     [:code.inline-code "<table>"] " HTML tag, and the rest can be done via CSS selectors."]
-   [:p "To provide CSS classes that should be applied to <table> tag, use "
+   [:div "To provide CSS classes that should be applied to <table> tag, use "
     [:code.inline-code "::table-classes"] " key in options as shown in example. Further styling can be provided via CSS selectors:"
     [:pre
      [:code {:class "css"}
@@ -174,9 +171,8 @@
 
 
 (defn pagination []
-  [:div.ui.section
-   [:h3.ui.dividing.header "Pagination"]
-   [:p
+  [:div
+   [:div
     "Pagination can be enabled via " [:code.inline-code "::pagination"] " key. There are 2 options:"
     [:ul.ui.list
      [:li [:code.inline-code "enabled?"] " - boolean to define if pagination should be enabled"]
@@ -197,9 +193,8 @@
 
 
 (defn sorting []
-  [:div.ui.section
-   [:h3.ui.dividing.header "Sorting"]
-   [:p
+  [:div
+   [:div
     "Sorting is enabled on per-column basis. To make column sortable just add "
     [:code.inline-code "::sorting"] " with the value "
     [:code.inline-code "{::enabled? true}"] " to particular column definition in "
@@ -229,15 +224,38 @@
   (reagent/create-class
     {:component-function
      (fn []
-       [:div.ui.main.text.container
-        [main-header]
-        [usage-section]
-        [basic-definition]
-        [css-options]
-        [pagination]
-        [sorting]])
+       (let [sections [["usage" "Usage" usage-section]
+                       ["basic" "Basic Definition" basic-definition]
+                       ["css-options" "CSS Options" css-options]
+                       ["pagination" "Pagination" pagination]
+                       ["sorting" "Sorting" sorting]]]
+
+         [:div.ui.main.text.container
+          [:div.ui.vertical.segment
+           [:div.ui.dividing.right.rail
+            [:div.ui.sticky
+             {:style {:min-height "260px"}}
+             [:div.ui.vertical.text.menu
+              (for [[dom-id label] sections]
+                ^{:key dom-id}
+                [:a.item
+                 {:href (str \# dom-id)}
+                 label])]]]
+
+           [:div#context
+            [main-header]
+
+            (for [[dom-id label component] sections]
+              ^{:key dom-id}
+              [:div.ui.section
+               [:a {:id dom-id :class "anchor"}]
+               [:h3.ui.dividing.header label]
+               [component]])]]]))
 
 
      :component-did-mount
      (fn []
-       (.tab (js/$ ".menu .item")))}))
+       (.ready (js/$ js/document)
+               (fn []
+                 (.tab (js/$ ".menu .item"))
+                 (.sticky (js/$ ".ui.sticky") (clj->js {:context "#context"})))))}))
