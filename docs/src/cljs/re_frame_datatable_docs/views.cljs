@@ -53,7 +53,23 @@
                   "duration_formatter" (do
                                          (r/source formatters/duration-formatter)
                                          (println)
-                                         'duration-formatter)))
+                                         'duration-formatter)
+
+                  "album_formatter" (do
+                                      (r/source formatters/album-formatter)
+                                      (println)
+                                      'album-formatter)
+
+                  "rating_formatter" (do
+                                       (r/source formatters/rating-formatter)
+                                       (println)
+                                       'rating-formatter)
+
+                  "artist_formatter" (do
+                                       (r/source formatters/artist-formatter)
+                                       (println)
+                                       'artist-formatter)))
+
 
               (keyword? x)
               (-> x
@@ -247,16 +263,34 @@
 
 (defn cell-rendering []
   [:div
+   [:div
+    "Each entry in " [:code.inline-code "columns-def"] " vector supports " [:code.inline-code "::render-fn"]
+    " option that allows to specify function that defines Reagent component which should be used for rendering. This function should have the following signature: "
+    [:pre
+     [:code {:class "clojure"}
+      "(defn custom-formatter [value & [item]])"]]
+    [:ul
+     [:li [:code.inline-code "value"] " - actual value of column property in this row"]
+     [:li [:code.inline-code "item"] " - actual object in this row (can be used to pass arbitrary key-value pairs to cell rendering function)"]]]
+
+   [:h5.ui.header "Basic custom rendering"]
    [tabs-wrapper
     :cell-rendering
     [::subs/cell-rendering-data]
     [{::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:artist]
-      ::dt/column-label "Name"}
+      ::dt/column-label "Artist"
+      ::dt/render-fn    formatters/artist-formatter}
      {::dt/column-key   [:duration]
       ::dt/column-label "Duration"
-      ::dt/render-fn    formatters/duration-formatter}]
+      ::dt/render-fn    formatters/duration-formatter}
+     {::dt/column-key   [:album]
+      ::dt/column-label "Album"
+      ::dt/render-fn    formatters/album-formatter}
+     {::dt/column-key   [:rating]
+      ::dt/column-label "Rating"
+      ::dt/render-fn    formatters/rating-formatter}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
 
 
