@@ -4,8 +4,8 @@
                  [figwheel-sidecar "0.5.8"]
                  [org.clojure/core.async "0.2.395"]
                  [reagent "0.6.0"]
-                 [re-frame "0.8.0"]
-                 [re-frame-datatable "0.1.0"]]
+                 [re-frame "0.9.0"]
+                 #_[re-frame-datatable "0.1.0"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 

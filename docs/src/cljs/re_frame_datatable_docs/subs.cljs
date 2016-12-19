@@ -10,8 +10,32 @@
     (get-in db [:sample-data :songs])))
 
 
+(re-frame/reg-sub
+  ::basic-definition-data
+  (fn []
+    (re-frame/subscribe [::songs-list]))
+  (fn [songs-list]
+    (->> songs-list
+         (take 5)
+         (map #(select-keys % [:name :index :play_count])))))
+
+
 
 (re-frame/reg-sub
-  ::sample-data
-  (fn [db]
-    (:sample-data db)))
+  ::pagination-data
+  (fn []
+    (re-frame/subscribe [::songs-list]))
+  (fn [songs-list]
+    (->> songs-list
+         (map #(select-keys % [:name :index :play_count])))))
+
+
+
+(re-frame/reg-sub
+  ::cell-rendering-data
+  (fn []
+    (re-frame/subscribe [::songs-list]))
+  (fn [songs-list]
+    (->> songs-list
+         (take 5)
+         (map #(select-keys % [:name :artist :duration])))))

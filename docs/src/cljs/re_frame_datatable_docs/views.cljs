@@ -3,6 +3,10 @@
             [re-frame-datatable-docs.subs :as subs]
             [cljs.pprint :as pp]
             [re-frame.core :as re-frame]
+            [clojure.walk :as walk]
+            [cljs.pprint :as pp]
+            [re-frame-datatable-docs.formatters :as formatters]
+            [cljs.repl :as r]
             [reagent.core :as reagent]))
 
 
@@ -38,7 +42,17 @@
 (defn formatted-code [data]
   [:pre
    [:code {:class "clojure"}
-    (with-out-str (pp/pprint data))]])
+    (with-out-str
+      (pp/pprint
+        (walk/postwalk
+          (fn [x]
+            (if (fn? x)
+              (do
+                (js/console.log (str x))
+
+                (r/source x))
+              x))
+          data)))]])
 
 
 
@@ -122,7 +136,7 @@
      [:li [:code.inline-code "::column-label"] " - a string that will be a header for a column"]]]
    [tabs-wrapper
     :basic-definition
-    [::subs/songs-list]
+    [::subs/basic-definition-data]
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
@@ -159,7 +173,7 @@
 
    [tabs-wrapper
     :css-options
-    [::subs/songs-list]
+    [::subs/basic-definition-data]
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
@@ -180,7 +194,7 @@
 
    [tabs-wrapper
     :pagination
-    [::subs/songs-list]
+    [::subs/pagination-data]
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
@@ -207,7 +221,7 @@
 
    [tabs-wrapper
     :sorting
-    [::subs/songs-list]
+    [::subs/basic-definition-data]
     [{::dt/column-key   [:index]
       ::dt/column-label "#"
       ::dt/sorting      {::dt/enabled? true}}
@@ -220,6 +234,22 @@
 
 
 
+(defn cell-rendering []
+  [:div
+   [tabs-wrapper
+    :cell-rendering
+    [::subs/cell-rendering-data]
+    [{::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:artist]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:duration]
+      ::dt/column-label "Duration"
+      ::dt/render-fn    formatters/duration-formatter}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+
+
+
 (defn main-panel []
   (reagent/create-class
     {:component-function
@@ -228,7 +258,8 @@
                        ["basic" "Basic Definition" basic-definition]
                        ["css-options" "CSS Options" css-options]
                        ["pagination" "Pagination" pagination]
-                       ["sorting" "Sorting" sorting]]]
+                       ["sorting" "Sorting" sorting]
+                       ["cell-rendering" "Cell Custom Rendering" cell-rendering]]]
 
          [:div.ui.main.text.container
           [:div.ui.vertical.segment
@@ -259,3 +290,4 @@
                (fn []
                  (.tab (js/$ ".menu .item"))
                  (.sticky (js/$ ".ui.sticky") (clj->js {:context "#context"})))))}))
+
