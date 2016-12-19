@@ -1,24 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [Unreleased][unreleased]
-### Changed
-- Add a new arity to `make-widget-async` to provide a different widget shape.
-
-## [0.1.1] - 2016-12-14
-### Changed
-- Documentation on how to make the widgets.
+## [0.2.0] - 2016-12-19
+### Added
+- Switched to [re-frame](https://github.com/Day8/re-frame) 0.9.0
+- `::render-fn` key that allows to specify custom rendering function
+- Styling of `<th>` element after sorting
 
 ### Removed
-- `make-widget-sync` - we're all async, all the time.
+- `::th-classes` key from `columns-def` vector elements. Styling should happen outside of component
 
-### Fixed
-- Fixed widget maker to keep working when daylight savings switches over.
-
-## 0.1.0 - 2016-12-14
+## 0.1.0 - 2016-12-15
 ### Added
-- Files from the new template.
-- Widget maker public API - `make-widget-sync`.
-
-[unreleased]: https://github.com/your-name/re-frame-datatable/compare/0.1.1...HEAD
-[0.1.1]: https://github.com/your-name/re-frame-datatable/compare/0.1.0...0.1.1
+- Initial DataTable implmenetation
+- sorting
+- pagination
+- Styling of `<table>` element
