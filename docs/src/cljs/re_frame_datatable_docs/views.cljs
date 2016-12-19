@@ -46,11 +46,22 @@
       (pp/pprint
         (walk/postwalk
           (fn [x]
-            (if (fn? x)
-              (do
-                (js/console.log (str x))
+            (cond
+              (fn? x)
+              (let [fname (last (re-find #"^function .*\$(.*)\(" (str x)))]
+                (case fname
+                  "duration_formatter" (do
+                                         (r/source formatters/duration-formatter)
+                                         (println)
+                                         'duration-formatter)))
 
-                (r/source x))
+              (keyword? x)
+              (-> x
+                  (str)
+                  (clojure.string/replace #"^:re-frame-datatable.core" ":dt")
+                  (keyword))
+
+              :else
               x))
           data)))]])
 
