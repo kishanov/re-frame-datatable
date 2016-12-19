@@ -252,6 +252,12 @@
     [:i.info.circle.icon]
     " To sort table, click on a column header (for the column on which sorting was enabled)"]
 
+   [:div.ui.warning.message
+    [:i.warning.sign.icon]
+    " When the table was sorted by particular column, the <th> element of sorted column will have 2 HTML classes assigned: "
+    [:code.inline-code "sorted-by"] " and either " [:code.inline-code "asc"] " or " [:code.inline-code "desc"]
+    ". This allows to apply CSS styling to this column to emphasize that the table was sorted by it. DataTable doesn't render additional visual clues to show emphasize it."]
+
    [tabs-wrapper
     :sorting
     [::subs/basic-definition-data]

@@ -17,12 +17,11 @@
 (s/def ::column-key (s/coll-of keyword? :kind vector :min-count 1))
 (s/def ::column-label string?)
 (s/def ::sorting (s/keys :req [::enabled?]))
-(s/def ::th-classes ::css-classes)
 
 
 (s/def ::column-def
   (s/keys :req [::column-key ::column-label]
-          :opt [::sorting ::th-classes ::render-fn]))
+          :opt [::sorting ::render-fn]))
 
 (s/def ::columns-def (s/coll-of ::column-def :min-count 1))
 
@@ -62,6 +61,12 @@
 
 (def per-page 10)
 
+
+; --- Utils ---
+(defn css-class-str [classes]
+  (->> classes
+       (filter (complement nil?))
+       (clojure.string/join \space)))
 
 
 ; --- Events ---
@@ -227,20 +232,23 @@
 
             [:table
              (when (::table-classes options)
-               {:class (clojure.string/join \space (::table-classes options))})
+               {:class (css-class-str (::table-classes options))})
 
              [:thead
               [:tr
                (doall
-                 (for [{:keys [::column-key ::column-label ::sorting ::th-classes]} columns-def]
+                 (for [{:keys [::column-key ::column-label ::sorting]} columns-def]
                    ^{:key (str column-key)}
                    [:th
                     (merge
-                      (when th-classes
-                        {:class (clojure.string/join \space th-classes)
-                         :style {:cursor "pointer"}})
-                      {:on-click #(when (::enabled? sorting)
-                                    (re-frame/dispatch [::set-sort-key db-id column-key]))})
+                      (when (::enabled? sorting)
+                        {:style    {:cursor "pointer"}
+                         :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
+                      (when (= column-key (get-in state [:sort :sort-key]))
+                        {:class (css-class-str ["sorted-by"
+                                                (if (= < (get-in state [:sort :sort-comp]))
+                                                  "asc"
+                                                  "desc")])}))
                     column-label]))]]
 
              [:tbody
