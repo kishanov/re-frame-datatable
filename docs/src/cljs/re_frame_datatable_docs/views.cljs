@@ -65,13 +65,19 @@
                                        (println)
                                        'rating-formatter)
 
+                  "song_digest_formatter" (do
+                                            (r/source formatters/song-digest-formatter)
+                                            (println)
+                                            'song-digest-formatter)
+
                   "artist_formatter" (do
                                        (r/source formatters/artist-formatter)
                                        (println)
                                        'artist-formatter)))
 
 
-              (keyword? x)
+              (and (keyword? x)
+                   (re-seq #"^:re-frame-datatable.core" (str x)))
               (-> x
                   (str)
                   (clojure.string/replace #"^:re-frame-datatable.core" ":dt")
@@ -107,7 +113,7 @@
          [:div.ui.bottom.attached.tab.segment
           {:data-tab source-dom-id}
           [formatted-code
-           (vec (cons `re-frame-datatable.core/datatable
+           (vec (cons `dt/datatable
                       (->> dt-def (rest) (filter (complement nil?)))))]]
 
          [:div.ui.bottom.attached.tab.segment
@@ -291,7 +297,20 @@
      {::dt/column-key   [:rating]
       ::dt/column-label "Rating"
       ::dt/render-fn    formatters/rating-formatter}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]
+
+   [:h5.ui.header "Using \"item\" argument"]
+   [tabs-wrapper
+    :cell-rendering
+    [::subs/cell-rendering-data]
+    [{::dt/column-key   [:name]
+      ::dt/column-label "Song"
+      ::dt/render-fn    formatters/song-digest-formatter}
+     {::dt/column-key   [:artist]
+      ::dt/column-label "Artist"
+      ::dt/render-fn    formatters/artist-formatter}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+
 
 
 

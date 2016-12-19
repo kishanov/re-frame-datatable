@@ -38,4 +38,4 @@
   (fn [songs-list]
     (->> songs-list
          (take 5)
-         (map #(select-keys % [:name :artist :duration :album :rating])))))
+         (map #(select-keys % [:index :name :artist :duration :album :rating])))))

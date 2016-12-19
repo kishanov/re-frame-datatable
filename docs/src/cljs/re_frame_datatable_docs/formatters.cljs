@@ -32,3 +32,10 @@
        (.ready (js/$ js/document)
                (fn []
                  (.rating (js/$ ".ui.rating") (js-obj "maxRating" 5)))))}))
+
+
+(defn song-digest-formatter [name song-info]
+  [:span
+   {:data-tooltip (str "From album \"" (get-in song-info [:album :name]) "\"")}
+   (:index song-info) ". "
+   name])

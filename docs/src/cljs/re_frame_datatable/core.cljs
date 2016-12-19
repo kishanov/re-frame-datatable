@@ -253,6 +253,6 @@
                        ^{:key (str column-key)}
                        [:td
                         (if render-fn
-                          [render-fn (get-in data-entry column-key)]
+                          [render-fn (get-in data-entry column-key) data-entry]
                           (get-in data-entry column-key))]))]))]]]))})))
 
