@@ -57,6 +57,7 @@
 (def state-db-path (partial db-path-for [:state]))
 (def sort-key-db-path (partial db-path-for [:state :sort :sort-key]))
 (def sort-comp-db-path (partial db-path-for [:state :sort :sort-comp]))
+(def selected-indexes-db-path (partial db-path-for [::selection :selected-indexes]))
 
 
 ; --- Defaults ---
@@ -174,6 +175,18 @@
                      (assoc-in [::pagination ::total-pages]
                                (Math/ceil (/ (count items) (get-in state [::pagination ::per-page])))))})))
 
+
+(re-frame/reg-sub
+  ::selected-items
+  (fn [[_ db-id data-sub]]
+    [(re-frame/subscribe data-sub)
+     (re-frame/subscribe [::state db-id])])
+
+  (fn [[items state]]
+    (->> items
+         (map-indexed vector)
+         (filter (fn [[idx _]] (contains? (get-in state [::selection ::selected-indexes]) idx)))
+         (map second))))
 
 
 

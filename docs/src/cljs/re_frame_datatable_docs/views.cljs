@@ -85,14 +85,14 @@
 
 
 
-(defn tabs-wrapper [dt-id subscription columns-def options]
-  (let [data (re-frame/subscribe subscription)
+(defn tabs-wrapper [dt-id data-sub columns-def options]
+  (let [data (re-frame/subscribe data-sub)
         example-dom-id (str (name dt-id) "-example")
         source-dom-id (str (name dt-id) "-source")
         data-dom-id (str (name dt-id) "-data")]
 
     (fn []
-      (let [dt-def [dt/datatable dt-id subscription columns-def options]]
+      (let [dt-def [dt/datatable dt-id data-sub columns-def options]]
         [:div {:style {:margin-top "2em"}}
          [:div.ui.top.attached.tabular.menu
           [:a.active.item
@@ -104,7 +104,17 @@
 
          [:div.ui.bottom.attached.active.tab.segment
           {:data-tab example-dom-id}
-          dt-def]
+          (if (get-in options [::dt/selection ::dt/enabled?])
+            [:div.ui.two.column.divided.grid
+             [:div.column
+              [:h5.ui.header "Table"]
+              dt-def]
+
+             [:div.column
+              [:h5.ui.header "Selected items"]
+              [formatted-code
+               @(re-frame/subscribe [::dt/selected-items dt-id data-sub])]]]
+            dt-def)]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab source-dom-id}
@@ -130,10 +140,11 @@
    [:pre
     [:code {:class "clojure"}
      "(defn my-component []
-     datatable-key ; a keyword, that will be used in re-frame's `app-db` to store datatable state
-     subscription-vec ; a vector, which will be used by datatable to render data via `(re-frame/subscribe subscription-vec)`
-     columns-def ; a vector of maps, that defines how each column of datatable should look like
-     options ; optional map of additional options)"]]])
+  [dt/datatable
+   datatable-key ; a keyword, that will be used in re-frame's `app-db` to store datatable state
+   subscription-vec ; a vector, which will be used by datatable to render data via `(re-frame/subscribe subscription-vec)`
+   columns-def ; a vector of maps, that defines how each column of datatable should look like
+   options] ; optional map of additional options)"]]])
 
 
 (defn main-header []
@@ -317,16 +328,52 @@
 
 (defn rows-selection []
   [:div
+   [:div
+    [:p
+     "To enable selection, pass " [:code.inline-code "::selection"] " option with value " [:code.inline-code "{::enabled? true}"] "."]
+
+    [:div
+     "To access selected items, DataTable provides subsciprtion " [:code.inline-code "::selected-items"] ", which accepts 2 arguments"
+     [:ul
+      [:li [:code.inline-code "datatable-id"] " - same keyword, that was used in DataTable definition"]
+      [:li [:code.inline-code "data-sub"] " - same subscription vector, that was used in DataTable definition"]]
+
+     "In the example below, right column with selected items is rendered via following subscription:"
+     [:pre
+      [:code {:class "clojure"}
+       "[:pre
+  [:code
+    @(re-frame/subscribe [::dt/selected-items :rows-basic-definition [::subs/basic-definition-data]])]]]"]]]]
+
    [tabs-wrapper
-    :rows-selection
+    :rows-selection-basic
     [::subs/basic-definition-data]
     [{::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
+     ::dt/selection     {::dt/enabled? true}}]
+
+   [:p
+    "Row selection also works with pagination and sorting:"]
+
+   [tabs-wrapper
+    :rows-selection-pagination-sorting
+    [::subs/pagination-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"
+      ::dt/sorting      {::dt/enabled? true}}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"
+      ::dt/sorting      {::dt/enabled? true}}
+     {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"
       ::dt/sorting      {::dt/enabled? true}}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
-     ::dt/selection     {::dt/enabled? true}}]])
+     ::dt/selection     {::dt/enabled? true}
+     ::dt/pagination    {::dt/enabled? true
+                         ::dt/per-page 5}}]])
 
 
 
