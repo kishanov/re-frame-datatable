@@ -283,7 +283,7 @@
 
    [:h5.ui.header "Basic custom rendering"]
    [tabs-wrapper
-    :cell-rendering
+    :cell-rendering-basic
     [::subs/cell-rendering-data]
     [{::dt/column-key   [:name]
       ::dt/column-label "Name"}
@@ -303,7 +303,7 @@
 
    [:h5.ui.header "Using \"item\" argument"]
    [tabs-wrapper
-    :cell-rendering
+    :cell-rendering-advanced
     [::subs/cell-rendering-data]
     [{::dt/column-key   [:name]
       ::dt/column-label "Song"
