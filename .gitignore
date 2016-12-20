@@ -10,3 +10,4 @@ pom.xml.asc
 .hgignore
 .hg/
 /.idea
+docs/src/cljs/re_frame_datatable/core.cljs

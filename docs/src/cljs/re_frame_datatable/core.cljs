@@ -47,17 +47,16 @@
 
 ; --- Re-frame database paths ---
 
-(def root-db-path [:re-colls :datatable])
+(def root-db-path [::re-frame-datatable])
 (defn db-path-for [db-path db-id]
   (vec (concat (conj root-db-path db-id)
                db-path)))
 
-(def columns-def-db-path (partial db-path-for [:columns-def]))
-(def options-db-path (partial db-path-for [:options]))
-(def state-db-path (partial db-path-for [:state]))
-(def sort-key-db-path (partial db-path-for [:state :sort :sort-key]))
-(def sort-comp-db-path (partial db-path-for [:state :sort :sort-comp]))
-(def selected-indexes-db-path (partial db-path-for [::selection :selected-indexes]))
+(def columns-def-db-path (partial db-path-for [::columns-def]))
+(def options-db-path (partial db-path-for [::options]))
+(def state-db-path (partial db-path-for [::state]))
+(def sort-key-db-path (partial db-path-for [::state ::sort ::sort-key]))
+(def sort-comp-db-path (partial db-path-for [::state ::sort ::sort-comp]))
 
 
 ; --- Defaults ---
@@ -153,7 +152,7 @@
 
   (fn [[items state]]
     (let [sort-data (fn [coll]
-                      (let [{:keys [sort-key sort-comp]} (:sort state)]
+                      (let [{:keys [::sort-key ::sort-comp]} (::sort state)]
                         (if sort-key
                           (sort-by #(get-in (second %) sort-key) sort-comp coll)
                           coll)))
@@ -287,9 +286,9 @@
                       (when (::enabled? sorting)
                         {:style    {:cursor "pointer"}
                          :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
-                      (when (= column-key (get-in state [:sort :sort-key]))
+                      (when (= column-key (get-in state [::sort ::sort-key]))
                         {:class (css-class-str ["sorted-by"
-                                                (if (= < (get-in state [:sort :sort-comp]))
+                                                (if (= < (get-in state [::sort ::sort-comp]))
                                                   "asc"
                                                   "desc")])}))
                     column-label]))]]
