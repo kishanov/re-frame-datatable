@@ -315,6 +315,20 @@
 
 
 
+(defn rows-selection []
+  [:div
+   [tabs-wrapper
+    :rows-selection
+    [::subs/basic-definition-data]
+    [{::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"
+      ::dt/sorting      {::dt/enabled? true}}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
+     ::dt/selection     {::dt/enabled? true}}]])
+
+
 
 (defn main-panel []
   (reagent/create-class
@@ -325,7 +339,8 @@
                        ["css-options" "CSS Options" css-options]
                        ["pagination" "Pagination" pagination]
                        ["sorting" "Sorting" sorting]
-                       ["cell-rendering" "Cell Custom Rendering" cell-rendering]]]
+                       ["cell-rendering" "Cell Custom Rendering" cell-rendering]
+                       ["rows-selection" "Rows selection" rows-selection]]]
 
          [:div.ui.main.text.container
           [:div.ui.vertical.segment
