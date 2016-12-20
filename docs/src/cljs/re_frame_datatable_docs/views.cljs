@@ -44,7 +44,7 @@
           (fn [x]
             (cond
               (fn? x)
-              (let [fname (last (re-find #"^function .*\$(.*)\(" (str x)))]
+              (let [fname (last (re-find #"^function re_frame_datatable_docs\$formatters\$(.*?)\(" (str x)))]
                 (case fname
                   "duration_formatter" (do
                                          (r/source formatters/duration-formatter)

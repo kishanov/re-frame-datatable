@@ -42,6 +42,6 @@
      :source-paths ["src/cljs"]
      :compiler     {:main            re-frame-datatable-docs.core
                     :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :advanced
+                    :optimizations   :whitespace
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false}}]})
