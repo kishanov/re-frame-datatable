@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.3.0] - 2016-12-21
+### Added
+- Selection of rows (including a subscription to selected elements)
+
+### Changed
+- Changed all datatable-related keywords to namespace-qualified keywords
+
 ## [0.2.0] - 2016-12-19
 ### Added
 - Switched to [re-frame](https://github.com/Day8/re-frame) 0.9.0
