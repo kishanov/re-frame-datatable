@@ -85,11 +85,13 @@
 
 
 
-(defn tabs-wrapper [dt-id data-sub columns-def options]
+(defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs]]
   (let [data (re-frame/subscribe data-sub)
         example-dom-id (str (name dt-id) "-example")
         source-dom-id (str (name dt-id) "-source")
-        data-dom-id (str (name dt-id) "-data")]
+        data-dom-id (str (name dt-id) "-data")
+        extra-tabs (map #(assoc % :data-tab (str (name dt-id) (:data-tab %)))
+                        extra-tabs)]
 
     (fn []
       (let [dt-def [dt/datatable dt-id data-sub columns-def options]]
@@ -100,7 +102,12 @@
           [:a.item
            {:data-tab source-dom-id} "Source"]
           [:a.item
-           {:data-tab data-dom-id} "Data"]]
+           {:data-tab data-dom-id} "Data"]
+          (doall
+            (for [{:keys [data-tab label]} extra-tabs]
+              ^{:key data-tab}
+              [:a.item
+               {:data-tab data-tab} label]))]
 
          [:div.ui.bottom.attached.active.tab.segment
           {:data-tab example-dom-id}
@@ -124,7 +131,14 @@
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab data-dom-id}
-          [formatted-code @data]]]))))
+          [formatted-code @data]]
+
+         (doall
+           (for [{:keys [data-tab component]} extra-tabs]
+             ^{:key data-tab}
+             [:div.ui.bottom.attached.tab.segment
+              {:data-tab data-tab}
+              [component]]))]))))
 
 
 
@@ -276,7 +290,13 @@
      {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"
       ::dt/sorting      {::dt/enabled? true}}]
-    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
+    [{:data-tab  "css-example"
+      :label     "CSS"
+      :component (fn []
+                   [:pre
+                    [:code {:class "css"}
+                     "div.re-frame-datatable > table > thead th.sorted-by:after {\n    display: inline-block;\n}\n\ndiv.re-frame-datatable > table > thead th.sorted-by.desc:after {\n    content: '\\f0d7';\n}\n\ndiv.re-frame-datatable > table > thead th.asc:after {\n    content: '\\f0d8';\n}\n\ndiv.re-frame-datatable > table > thead th:after {\n    display: none;\n    font-family: Icons;\n    margin-left: .5em;\n}"]])}]]])
 
 
 
