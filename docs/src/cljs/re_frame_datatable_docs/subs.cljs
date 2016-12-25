@@ -20,6 +20,16 @@
          (map #(select-keys % [:name :index :play_count])))))
 
 
+(re-frame/reg-sub
+  ::total-play-count
+  (fn []
+    (re-frame/subscribe [::basic-definition-data]))
+  (fn [songs-list]
+    (->> songs-list
+         (map :play_count)
+         (apply +))))
+
+
 
 (re-frame/reg-sub
   ::pagination-data

@@ -17,7 +17,6 @@
 (s/def ::column-key (s/coll-of keyword? :kind vector :min-count 1))
 (s/def ::column-label string?)
 (s/def ::sorting (s/keys :req [::enabled?]))
-(s/def ::row-span (s/and integer? pos?))
 
 
 (s/def ::column-def
@@ -41,9 +40,12 @@
 (s/def ::selection
   (s/keys :req [::enabled?]))
 
+(s/def ::extra-header-row-component fn?)
+(s/def ::footer-component fn?)
+
 (s/def ::options
   (s/nilable
-    (s/keys :opt [::pagination ::table-classes ::selection])))
+    (s/keys :opt [::pagination ::table-classes ::selection ::extra-header-row-component ::footer-component])))
 
 
 ; --- Re-frame database paths ---
@@ -272,8 +274,8 @@
                {:class (css-class-str (::table-classes options))})
 
              [:thead
-              (when (::extra-header-row options)
-                [(::extra-header-row options)])
+              (when (::extra-header-row-component options)
+                [(::extra-header-row-component options)])
 
               [:tr
                (when (::enabled? selection)
@@ -283,20 +285,18 @@
                            :on-change #(re-frame/dispatch [::change-table-selection db-id indexes (-> % .-target .-checked)])}]])
 
                (doall
-                 (for [{:keys [::column-key ::column-label ::sorting ::row-span]} columns-def]
+                 (for [{:keys [::column-key ::column-label ::sorting]} columns-def]
                    ^{:key (str column-key)}
                    [:th
-                    (merge-with merge
-                                (when (::enabled? sorting)
-                                  {:style    {:cursor "pointer"}
-                                   :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
-                                (when row-span
-                                  {:row-span row-span})
-                                (when (= column-key (get-in state [::sort ::sort-key]))
-                                  {:class (css-class-str ["sorted-by"
-                                                          (if (= < (get-in state [::sort ::sort-comp]))
-                                                            "asc"
-                                                            "desc")])}))
+                    (merge
+                      (when (::enabled? sorting)
+                        {:style    {:cursor "pointer"}
+                         :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
+                      (when (= column-key (get-in state [::sort ::sort-key]))
+                        {:class (css-class-str ["sorted-by"
+                                                (if (= < (get-in state [::sort ::sort-comp]))
+                                                  "asc"
+                                                  "desc")])}))
                     column-label]))]]
 
              [:tbody
@@ -318,5 +318,9 @@
                        [:td
                         (if render-fn
                           [render-fn (get-in data-entry column-key) data-entry]
-                          (get-in data-entry column-key))]))]))]]]))})))
+                          (get-in data-entry column-key))]))]))]
+
+             (when (::footer-component options)
+               [:tfoot
+                [(::footer-component options)]])]]))})))
 

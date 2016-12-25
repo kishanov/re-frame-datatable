@@ -39,9 +39,3 @@
    {:data-tooltip (str "From album \"" (get-in song-info [:album :name]) "\"")}
    (:index song-info) ". "
    name])
-
-
-(defn aggregation-row []
-  [:tr
-   [:th {:col-span 1} ""]
-   [:th {:col-span 3} "Album info"]])

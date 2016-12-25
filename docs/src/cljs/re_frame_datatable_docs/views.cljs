@@ -6,8 +6,10 @@
             [clojure.walk :as walk]
             [cljs.pprint :as pp]
             [re-frame-datatable-docs.formatters :as formatters]
+            [re-frame-datatable-docs.table-views :as table-views]
             [cljs.repl :as r]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [clojure.pprint :as p]))
 
 
 (defn sneak-peek-for-readme []
@@ -44,37 +46,49 @@
           (fn [x]
             (cond
               (fn? x)
-              (let [fname (last (re-find #"^function re_frame_datatable_docs\$formatters\$(.*?)\(" (str x)))]
+              (let [fname (last (re-find #"^function re_frame_datatable_docs\$(formatters|table_views)\$(.*?)\(" (str x)))]
                 (condp = fname
-                  "duration_formatter" (do
-                                         (r/source formatters/duration-formatter)
-                                         (println)
-                                         'duration-formatter)
+                  "duration_formatter"
+                  (do
+                    (r/source formatters/duration-formatter)
+                    (println)
+                    'duration-formatter)
 
-                  "album_formatter" (do
-                                      (r/source formatters/album-formatter)
-                                      (println)
-                                      'album-formatter)
+                  "album_formatter"
+                  (do
+                    (r/source formatters/album-formatter)
+                    (println)
+                    'album-formatter)
 
-                  "rating_formatter" (do
-                                       (r/source formatters/rating-formatter)
-                                       (println)
-                                       'rating-formatter)
+                  "rating_formatter"
+                  (do
+                    (r/source formatters/rating-formatter)
+                    (println)
+                    'rating-formatter)
 
-                  "song_digest_formatter" (do
-                                            (r/source formatters/song-digest-formatter)
-                                            (println)
-                                            'song-digest-formatter)
+                  "song_digest_formatter"
+                  (do
+                    (r/source formatters/song-digest-formatter)
+                    (println)
+                    'song-digest-formatter)
 
-                  "artist_formatter" (do
-                                       (r/source formatters/artist-formatter)
-                                       (println)
-                                       'artist-formatter)
+                  "artist_formatter"
+                  (do
+                    (r/source formatters/artist-formatter)
+                    (println)
+                    'artist-formatter)
 
-                  "aggregation_row" (do
-                                      (r/source formatters/aggregation-row)
-                                      (println)
-                                      'aggregration-row)
+                  "aggregation_row"
+                  (do
+                    (r/source table-views/aggregation-row)
+                    (println)
+                    'aggregration-row)
+
+                  "total_play_count_footer"
+                  (do
+                    (r/source table-views/total-play-count-footer)
+                    (println)
+                    'total-play-count-footer)
 
                   (str x)))
 
@@ -407,21 +421,33 @@
 
 (defn additional-structure []
   [:div
-   [:h5.ui.header "Extra header row"]
+   [:h5.ui.header "Extra Header Row Component"]
    [tabs-wrapper
     :extra-header-row
     [::subs/cell-rendering-data]
     [{::dt/column-key   [:name]
-      ::dt/column-label "Name"
-      ::dt/row-span     2}
+      ::dt/column-label "Name"}
      {::dt/column-key   [:artist]
       ::dt/column-label "Artist"}
      {::dt/column-key   [:album :name]
       ::dt/column-label "Album"}
      {::dt/column-key   [:album :year]
       ::dt/column-label "Year"}]
+    {::dt/table-classes              ["ui" "celled" "table"]
+     ::dt/extra-header-row-component table-views/aggregation-row}]
+
+   [:h5.ui.header "Footer Component"]
+   [tabs-wrapper
+    :footer-component
+    [::subs/basic-definition-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "Index"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
     {::dt/table-classes    ["ui" "celled" "table"]
-     ::dt/extra-header-row formatters/aggregation-row}]])
+     ::dt/footer-component table-views/total-play-count-footer}]])
 
 
 
