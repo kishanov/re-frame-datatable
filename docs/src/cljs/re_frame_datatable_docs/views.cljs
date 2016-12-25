@@ -163,6 +163,21 @@
 
 
 
+(defn icon-message [message-class icon-class text & [header]]
+  [:div.ui.icon.message
+   {:class message-class}
+   [:i.icon {:class icon-class}]
+   [:div.content
+    (when header
+      [:div.header header])
+    text]])
+
+
+(def warning-message (partial icon-message "warning" "warning sign"))
+(def info-message (partial icon-message "info" "info circle"))
+
+
+
 (defn usage-section []
   [:div
    [:div "re-frame-datatable should be used as any other Reagent component. First, require it in the file that contains your re-frame application views:"]
@@ -290,15 +305,15 @@
     [:code.inline-code "columns-def"] " vector. "
     "In the example below, index and play_count columns are made sortable."]
 
-   [:div.ui.info.message
-    [:i.info.circle.icon]
-    " To sort table, click on a column header (for the column on which sorting was enabled)"]
+   [info-message
+    [:div " To sort table, click on a column header (for the column on which sorting was enabled)"]]
 
-   [:div.ui.warning.message
-    [:i.warning.sign.icon]
-    " When the table was sorted by particular column, the <th> element of sorted column will have 2 HTML classes assigned: "
-    [:code.inline-code "sorted-by"] " and either " [:code.inline-code "asc"] " or " [:code.inline-code "desc"]
-    ". This allows to apply CSS styling to this column to emphasize that the table was sorted by it. DataTable doesn't render additional visual clues to show emphasize it."]
+   [warning-message
+    [:div
+     " When the table was sorted by particular column, the <th> element of sorted column will have 2 HTML classes assigned: "
+     [:code.inline-code "sorted-by"] " and either " [:code.inline-code "asc"] " or " [:code.inline-code "desc"]
+     ". This allows to apply CSS styling to this column to emphasize that the table was sorted by it. DataTable doesn't render additional visual clues to show emphasize it."]]
+
 
    [tabs-wrapper
     :sorting
@@ -422,6 +437,17 @@
 (defn additional-structure []
   [:div
    [:h5.ui.header "Extra Header Row Component"]
+
+   [:div
+    "DataTable supports rendering of an additional row inside " [:code.inline-code "<thead>"]
+    " (it will be rendered on top of header row, rendered from " [:code.inline-code "columns-def"] " vector). "
+    "To render it, use " [:code.inline-code "::extra-header-row-component"] " option key with the valid Reagent component passed as a value."
+
+    [warning-message
+     [:div
+      " Notice that DataTable will not validate that passed component is in fact valid, it just checks if it's a function."
+      "Internally, it will be rendered as " [:code.inline-code "[(::extra-header-row-component options)]"]]]]
+
    [tabs-wrapper
     :extra-header-row
     [::subs/cell-rendering-data]
@@ -437,6 +463,16 @@
      ::dt/extra-header-row-component table-views/aggregation-row}]
 
    [:h5.ui.header "Footer Component"]
+
+   [:div
+    "DataTable can also render an arbitrary Reagent comopnent inside " [:code.inline-code "<tfoot>"] " HTML tag."
+    "To render it, use " [:code.inline-code "::footer-component"] " option key with the valid Reagent component passed as a value."
+
+    [info-message
+     [:div
+      "Notice that in the example below " [:code.inline-code "total-play-count-footer"] " uses additional subscription to get total play count. "
+      "DataTable doesn't maintain any intermediate state of given data, so in order to access it - use the same subscription as passed to DataTable (or the one which is build on top of it)"]]]
+
    [tabs-wrapper
     :footer-component
     [::subs/basic-definition-data]
