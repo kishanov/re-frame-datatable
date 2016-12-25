@@ -45,7 +45,7 @@
             (cond
               (fn? x)
               (let [fname (last (re-find #"^function re_frame_datatable_docs\$formatters\$(.*?)\(" (str x)))]
-                (case fname
+                (condp = fname
                   "duration_formatter" (do
                                          (r/source formatters/duration-formatter)
                                          (println)
@@ -69,7 +69,14 @@
                   "artist_formatter" (do
                                        (r/source formatters/artist-formatter)
                                        (println)
-                                       'artist-formatter)))
+                                       'artist-formatter)
+
+                  "aggregation_row" (do
+                                      (r/source formatters/aggregation-row)
+                                      (println)
+                                      'aggregration-row)
+
+                  (str x)))
 
 
               (and (keyword? x)
@@ -346,6 +353,7 @@
 
 
 
+
 (defn rows-selection []
   [:div
    [:div
@@ -397,6 +405,26 @@
 
 
 
+(defn additional-structure []
+  [:div
+   [:h5.ui.header "Extra header row"]
+   [tabs-wrapper
+    :extra-header-row
+    [::subs/cell-rendering-data]
+    [{::dt/column-key   [:name]
+      ::dt/column-label "Name"
+      ::dt/row-span     2}
+     {::dt/column-key   [:artist]
+      ::dt/column-label "Artist"}
+     {::dt/column-key   [:album :name]
+      ::dt/column-label "Album"}
+     {::dt/column-key   [:album :year]
+      ::dt/column-label "Year"}]
+    {::dt/table-classes    ["ui" "celled" "table"]
+     ::dt/extra-header-row formatters/aggregation-row}]])
+
+
+
 (defn main-panel []
   (reagent/create-class
     {:component-function
@@ -407,7 +435,8 @@
                        ["pagination" "Pagination" pagination]
                        ["sorting" "Sorting" sorting]
                        ["cell-rendering" "Cell Custom Rendering" cell-rendering]
-                       ["rows-selection" "Rows selection" rows-selection]]]
+                       ["rows-selection" "Rows selection" rows-selection]
+                       ["additional-structure" "Additional structure" additional-structure]]]
 
          [:div.ui.main.text.container
           [:div.ui.vertical.segment
