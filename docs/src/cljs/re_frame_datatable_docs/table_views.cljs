@@ -23,12 +23,14 @@
 
 
 (defn play-count-td-classes [play-count]
+  "Set 'disabled' class for the song if it hasn't been played yet"
   [(when (zero? play-count)
      "disabled")])
 
 
 
 (defn rating-td-classes [rating]
+  "Color-code cell by rating"
   [(cond
      (= 5 rating) "positive"
      (#{3 4} rating) "warning"
@@ -36,6 +38,9 @@
      :else "negative")])
 
 
-(defn play-count-tr-classes [data-entry]
-  [(when-not (pos? (:play_count data-entry))
+
+(defn play-count-tr-classes
+  "For all songs that hasn't been played yet, define <tr> class as 'warning'"
+  [song]
+  [(when-not (pos? (:play_count song))
      "warning")])

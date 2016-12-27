@@ -429,8 +429,10 @@
 )"]]
 
     [:p
-     "i.e. function should return a sequence of CSS classes (represented as strings) that should be applied to " [:code.inline-code "<td>"] " element."]]
+     "i.e. function should return a sequence of CSS classes (represented as strings) that should be applied to " [:code.inline-code "<td>"] " element."]
 
+    [info-message
+     [:div "In the example below " [:code.inline-code "row-value"] " argument is not provided to neither of functions, because the value of class can be determined by single property only."]]]
 
    [tabs-wrapper
     :marking-cells
@@ -447,10 +449,21 @@
       ::dt/td-class-fn  table-views/rating-td-classes}]
     {::dt/table-classes ["ui" "celled" "table"]}]
 
-
    [:h5.ui.header "Styling Individual Rows"]
+   [:div
+    [:p
+     "Similar capabilities are available for the complete row, with the difference that the option is defined via " [:code.inline-code "options"] " argument."
+     [:code.inline-code "::tr-class-fn"] " option that accepts a function with following signature:"]
+    [:pre
+     [:code {:class "clojure"}
+      "(defn td-class-fn [row-value]
+  {:post [(seq? %)
+          (every? (fn [t] (or (string? t) (nil? t))))]}
+  ;...
+)"]]]
+
    [tabs-wrapper
-    :marking-cells
+    :marking-rows
     [::subs/marking-elements-data]
     [{::dt/column-key   [:index]
       ::dt/column-label "#"}
@@ -462,7 +475,6 @@
       ::dt/column-label "Rating"}]
     {::dt/table-classes ["ui" "celled" "table"]
      ::dt/tr-class-fn   table-views/play-count-tr-classes}]])
-
 
 
 
