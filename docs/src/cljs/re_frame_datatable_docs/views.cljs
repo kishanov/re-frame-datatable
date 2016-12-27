@@ -424,7 +424,7 @@
      [:code {:class "clojure"}
       "(defn td-class-fn [cell-value row-value]
   {:post [(seq? %)
-          (every? (fn [t] (or (string? t) (nil? t))))]}
+          (every? (fn [t] (or (string? t) (nil? t))) %)]}
   ;...
 )"]]
 

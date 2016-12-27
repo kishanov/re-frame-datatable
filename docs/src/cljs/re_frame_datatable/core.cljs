@@ -267,7 +267,7 @@
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
                {:keys [::selection ::pagination]} state
-               {:keys [::table-classes ::tr-class-fn]} options]
+               {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component]} options]
            [:div.re-colls-datatable
             (when (::enabled? pagination)
               [page-selector db-id pagination])
@@ -277,8 +277,8 @@
                (css-class-str table-classes))
 
              [:thead
-              (when (::extra-header-row-component options)
-                [(::extra-header-row-component options)])
+              (when extra-header-row-component
+                [extra-header-row-component])
 
               [:tr
                (when (::enabled? selection)
@@ -333,7 +333,7 @@
                           [render-fn (get-in data-entry column-key) data-entry]
                           (get-in data-entry column-key))]))]))]
 
-             (when (::footer-component options)
+             (when footer-component
                [:tfoot
-                [(::footer-component options)]])]]))})))
+                [footer-component]])]]))})))
 

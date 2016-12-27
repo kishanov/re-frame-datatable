@@ -1,4 +1,4 @@
-(defproject re-frame-datatable "0.3.0"
+(defproject re-frame-datatable "0.4.0"
   :description "DataTable component for re-frame 0.8.0+"
   :url "https://github.com/kishanov/re-frame-datatable"
   :license {:name "Eclipse Public License"
@@ -6,4 +6,4 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.293"]
                  [reagent "0.6.0"]
-                 [re-frame "0.9.0"]])
+                 [re-frame "0.9.1"]])

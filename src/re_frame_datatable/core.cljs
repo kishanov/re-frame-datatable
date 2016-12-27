@@ -17,11 +17,12 @@
 (s/def ::column-key (s/coll-of keyword? :kind vector :min-count 1))
 (s/def ::column-label string?)
 (s/def ::sorting (s/keys :req [::enabled?]))
+(s/def ::td-class-fn fn?)
 
 
 (s/def ::column-def
   (s/keys :req [::column-key ::column-label]
-          :opt [::sorting ::render-fn]))
+          :opt [::sorting ::render-fn ::td-class-fn]))
 
 (s/def ::columns-def (s/coll-of ::column-def :min-count 1))
 
@@ -40,9 +41,12 @@
 (s/def ::selection
   (s/keys :req [::enabled?]))
 
+(s/def ::extra-header-row-component fn?)
+(s/def ::footer-component fn?)
+
 (s/def ::options
   (s/nilable
-    (s/keys :opt [::pagination ::table-classes ::selection])))
+    (s/keys :opt [::pagination ::table-classes ::selection ::extra-header-row-component ::footer-component])))
 
 
 ; --- Re-frame database paths ---
@@ -66,9 +70,10 @@
 
 ; --- Utils ---
 (defn css-class-str [classes]
-  (->> classes
-       (filter (complement nil?))
-       (clojure.string/join \space)))
+  {:class (->> classes
+               (filter (complement nil?))
+               (clojure.string/join \space))})
+
 
 
 ; --- Events ---
@@ -261,16 +266,20 @@
        :component-function
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
-               {:keys [::selection ::pagination]} state]
+               {:keys [::selection ::pagination]} state
+               {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component]} options]
            [:div.re-colls-datatable
             (when (::enabled? pagination)
               [page-selector db-id pagination])
 
             [:table
-             (when (::table-classes options)
-               {:class (css-class-str (::table-classes options))})
+             (when table-classes
+               (css-class-str table-classes))
 
              [:thead
+              (when extra-header-row-component
+                [extra-header-row-component])
+
               [:tr
                (when (::enabled? selection)
                  [:th
@@ -287,10 +296,10 @@
                         {:style    {:cursor "pointer"}
                          :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
                       (when (= column-key (get-in state [::sort ::sort-key]))
-                        {:class (css-class-str ["sorted-by"
-                                                (if (= < (get-in state [::sort ::sort-comp]))
-                                                  "asc"
-                                                  "desc")])}))
+                        (css-class-str ["sorted-by"
+                                        (if (= < (get-in state [::sort ::sort-comp]))
+                                          "asc"
+                                          "desc")])))
                     column-label]))]]
 
              [:tbody
@@ -298,6 +307,11 @@
                 (for [[i data-entry] items]
                   ^{:key i}
                   [:tr
+                   (merge
+                     {}
+                     (when tr-class-fn
+                       (css-class-str (tr-class-fn data-entry))))
+
                    (let [{:keys [::selection]} state]
                      (when (::enabled? selection)
                        [:td
@@ -307,10 +321,19 @@
 
 
                    (doall
-                     (for [{:keys [::column-key ::render-fn]} columns-def]
+                     (for [{:keys [::column-key ::render-fn ::td-class-fn]} columns-def]
                        ^{:key (str i \- column-key)}
                        [:td
+                        (merge
+                          {}
+                          (when td-class-fn
+                            (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))))
+
                         (if render-fn
                           [render-fn (get-in data-entry column-key) data-entry]
-                          (get-in data-entry column-key))]))]))]]]))})))
+                          (get-in data-entry column-key))]))]))]
+
+             (when footer-component
+               [:tfoot
+                [footer-component]])]]))})))
 
