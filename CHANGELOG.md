@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.4.0] - 2016-12-27
+### Added
+- Support for optional extra row inside `<thead>` via `::extra-header-row-component`
+- Support for optional `<tfoot>` via `::footer-component`
+- Ability to inject arbitrary classes into rendered `<td>` and `<tr>` elements
+- Bumped [re-frame](https://github.com/Day8/re-frame) version to 0.9.1
+
 ## [0.3.0] - 2016-12-21
 ### Added
 - Selection of rows (including a subscription to selected elements)
