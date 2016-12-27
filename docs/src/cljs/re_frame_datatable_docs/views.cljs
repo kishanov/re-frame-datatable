@@ -1,15 +1,10 @@
 (ns re-frame-datatable-docs.views
   (:require [re-frame-datatable.core :as dt]
             [re-frame-datatable-docs.subs :as subs]
-            [cljs.pprint :as pp]
             [re-frame.core :as re-frame]
-            [clojure.walk :as walk]
-            [cljs.pprint :as pp]
             [re-frame-datatable-docs.formatters :as formatters]
             [re-frame-datatable-docs.table-views :as table-views]
-            [cljs.repl :as r]
-            [reagent.core :as reagent]
-            [clojure.pprint :as p]))
+            [reagent.core :as reagent]))
 
 
 (defn sneak-peek-for-readme []
@@ -35,92 +30,6 @@
                         ::dt/per-page 5}
     ::dt/table-classes ["ui" "table" "celled"]}])
 
-
-
-(defn formatted-code [data]
-  [:pre
-   [:code {:class "clojure"}
-    (with-out-str
-      (pp/pprint
-        (walk/postwalk
-          (fn [x]
-            (cond
-              (fn? x)
-              (let [fname (last (re-find #"^function re_frame_datatable_docs\$(formatters|table_views)\$(.*?)\(" (str x)))]
-                (condp = fname
-                  "duration_formatter"
-                  (do
-                    (r/source formatters/duration-formatter)
-                    (println)
-                    'duration-formatter)
-
-                  "album_formatter"
-                  (do
-                    (r/source formatters/album-formatter)
-                    (println)
-                    'album-formatter)
-
-                  "rating_formatter"
-                  (do
-                    (r/source formatters/rating-formatter)
-                    (println)
-                    'rating-formatter)
-
-                  "song_digest_formatter"
-                  (do
-                    (r/source formatters/song-digest-formatter)
-                    (println)
-                    'song-digest-formatter)
-
-                  "artist_formatter"
-                  (do
-                    (r/source formatters/artist-formatter)
-                    (println)
-                    'artist-formatter)
-
-                  "aggregation_row"
-                  (do
-                    (r/source table-views/aggregation-row)
-                    (println)
-                    'aggregration-row)
-
-                  "total_play_count_footer"
-                  (do
-                    (r/source table-views/total-play-count-footer)
-                    (println)
-                    'total-play-count-footer)
-
-                  "play_count_td_classes"
-                  (do
-                    (r/source table-views/play-count-td-classes)
-                    (println)
-                    'play-count-td-classes)
-
-                  "rating_td_classes"
-                  (do
-                    (r/source table-views/rating-td-classes)
-                    (println)
-                    'rating-td-classes)
-
-                  "play_count_tr_classes"
-                  (do
-                    (r/source table-views/play-count-tr-classes)
-                    (println)
-                    'play-count-tr-classes)
-
-                  (str x)))
-
-
-              (and (keyword? x)
-                   (re-seq #"^:re-frame-datatable.core" (str x)))
-              (-> x
-                  (str)
-                  (clojure.string/replace #"^:re-frame-datatable.core" ":dt")
-                  (keyword))
-
-              :else
-              x))
-          data)))]])
 
 
 (defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs]]
@@ -157,19 +66,19 @@
 
              [:div.column
               [:h5.ui.header "Selected items"]
-              [formatted-code
+              [formatters/formatted-code
                @(re-frame/subscribe [::dt/selected-items dt-id data-sub])]]]
             dt-def)]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab source-dom-id}
-          [formatted-code
+          [formatters/formatted-code
            (vec (cons `dt/datatable
                       (->> dt-def (rest) (filter (complement nil?)))))]]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab data-dom-id}
-          [formatted-code @data]]
+          [formatters/formatted-code @data]]
 
          (doall
            (for [{:keys [data-tab component]} extra-tabs]
