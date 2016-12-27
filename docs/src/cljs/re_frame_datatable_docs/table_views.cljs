@@ -32,6 +32,10 @@
   [(cond
      (= 5 rating) "positive"
      (#{3 4} rating) "warning"
-     (nil? rating) nil ; DataTable will ignore all nil values in classes vector
+     (nil? rating) nil                                      ; DataTable will ignore all nil values in classes vector
      :else "negative")])
 
+
+(defn play-count-tr-classes [data-entry]
+  [(when-not (pos? (:play_count data-entry))
+     "warning")])

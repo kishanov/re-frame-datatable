@@ -70,9 +70,10 @@
 
 ; --- Utils ---
 (defn css-class-str [classes]
-  (->> classes
-       (filter (complement nil?))
-       (clojure.string/join \space)))
+  {:class (->> classes
+               (filter (complement nil?))
+               (clojure.string/join \space))})
+
 
 
 ; --- Events ---
@@ -265,14 +266,15 @@
        :component-function
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
-               {:keys [::selection ::pagination]} state]
+               {:keys [::selection ::pagination]} state
+               {:keys [::table-classes ::tr-class-fn]} options]
            [:div.re-colls-datatable
             (when (::enabled? pagination)
               [page-selector db-id pagination])
 
             [:table
-             (when (::table-classes options)
-               {:class (css-class-str (::table-classes options))})
+             (when table-classes
+               (css-class-str table-classes))
 
              [:thead
               (when (::extra-header-row-component options)
@@ -294,10 +296,10 @@
                         {:style    {:cursor "pointer"}
                          :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
                       (when (= column-key (get-in state [::sort ::sort-key]))
-                        {:class (css-class-str ["sorted-by"
-                                                (if (= < (get-in state [::sort ::sort-comp]))
-                                                  "asc"
-                                                  "desc")])}))
+                        (css-class-str ["sorted-by"
+                                        (if (= < (get-in state [::sort ::sort-comp]))
+                                          "asc"
+                                          "desc")])))
                     column-label]))]]
 
              [:tbody
@@ -305,6 +307,11 @@
                 (for [[i data-entry] items]
                   ^{:key i}
                   [:tr
+                   (merge
+                     {}
+                     (when tr-class-fn
+                       (css-class-str (tr-class-fn data-entry))))
+
                    (let [{:keys [::selection]} state]
                      (when (::enabled? selection)
                        [:td
@@ -320,7 +327,8 @@
                         (merge
                           {}
                           (when td-class-fn
-                            {:class (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))}))
+                            (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))))
+
                         (if render-fn
                           [render-fn (get-in data-entry column-key) data-entry]
                           (get-in data-entry column-key))]))]))]

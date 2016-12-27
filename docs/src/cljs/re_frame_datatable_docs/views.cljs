@@ -102,6 +102,12 @@
                     (println)
                     'rating-td-classes)
 
+                  "play_count_tr_classes"
+                  (do
+                    (r/source table-views/play-count-tr-classes)
+                    (println)
+                    'play-count-tr-classes)
+
                   (str x)))
 
 
@@ -115,7 +121,6 @@
               :else
               x))
           data)))]])
-
 
 
 (defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs]]
@@ -531,7 +536,23 @@
      {::dt/column-key   [:rating]
       ::dt/column-label "Rating"
       ::dt/td-class-fn  table-views/rating-td-classes}]
-    {::dt/table-classes ["ui" "celled" "table"]}]])
+    {::dt/table-classes ["ui" "celled" "table"]}]
+
+
+   [:h5.ui.header "Styling Individual Rows"]
+   [tabs-wrapper
+    :marking-cells
+    [::subs/marking-elements-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play Count"}
+     {::dt/column-key   [:rating]
+      ::dt/column-label "Rating"}]
+    {::dt/table-classes ["ui" "celled" "table"]
+     ::dt/tr-class-fn   table-views/play-count-tr-classes}]])
 
 
 
