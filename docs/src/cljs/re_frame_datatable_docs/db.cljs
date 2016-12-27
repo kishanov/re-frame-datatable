@@ -6,11 +6,11 @@
    {:songs
     (->>
       [{:index 1 :name "Black Porch Bogie" :duration 122 :play_count 2 :rating 5}
-       {:index 2 :name "Georgia on my Mind" :duration 260 :play_count 4}
+       {:index 2 :name "Georgia on my Mind" :duration 260 :play_count 0}
        {:index 3 :name "Salty Dog Rag" :duration 107 :play_count 1 :rating 2}
-       {:index 4 :name "Rattenbury Rag" :duration 164 :play_count 2}
-       {:index 5 :name "Steppin' Out" :duration 87 :play_count 2}
-       {:index 6 :name "Black Mountain Rag" :duration 139 :play_count 3}
+       {:index 4 :name "Rattenbury Rag" :duration 164 :play_count 2 :rating 3}
+       {:index 5 :name "Steppin' Out" :duration 87 :play_count 0}
+       {:index 6 :name "Black Mountain Rag" :duration 139 :play_count 3 :rating 4}
        {:index 7 :name "Flight of the Humminbird" :duration 191 :play_count 0}
        {:index 8 :name "Limehouse Blues" :duration 104 :play_count 1}
        {:index 9 :name "Linus and Lucy" :duration 172 :play_count 5 :rating 5}

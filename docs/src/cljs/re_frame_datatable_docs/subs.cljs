@@ -49,3 +49,15 @@
     (->> songs-list
          (take 5)
          (map #(select-keys % [:index :name :artist :duration :album :rating])))))
+
+
+
+(re-frame/reg-sub
+  ::marking-elements-data
+  (fn []
+    (re-frame/subscribe [::songs-list]))
+  (fn [songs-list]
+    (->> songs-list
+         (take 7)
+         (map #(select-keys % [:index :name :rating :play_count])))))
+

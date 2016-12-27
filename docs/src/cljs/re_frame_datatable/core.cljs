@@ -17,11 +17,12 @@
 (s/def ::column-key (s/coll-of keyword? :kind vector :min-count 1))
 (s/def ::column-label string?)
 (s/def ::sorting (s/keys :req [::enabled?]))
+(s/def ::td-class-fn fn?)
 
 
 (s/def ::column-def
   (s/keys :req [::column-key ::column-label]
-          :opt [::sorting ::render-fn]))
+          :opt [::sorting ::render-fn ::td-class-fn]))
 
 (s/def ::columns-def (s/coll-of ::column-def :min-count 1))
 
@@ -313,9 +314,13 @@
 
 
                    (doall
-                     (for [{:keys [::column-key ::render-fn]} columns-def]
+                     (for [{:keys [::column-key ::render-fn ::td-class-fn]} columns-def]
                        ^{:key (str i \- column-key)}
                        [:td
+                        (merge
+                          {}
+                          (when td-class-fn
+                            {:class (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))}))
                         (if render-fn
                           [render-fn (get-in data-entry column-key) data-entry]
                           (get-in data-entry column-key))]))]))]

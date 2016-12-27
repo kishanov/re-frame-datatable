@@ -90,6 +90,18 @@
                     (println)
                     'total-play-count-footer)
 
+                  "play_count_td_classes"
+                  (do
+                    (r/source table-views/play-count-td-classes)
+                    (println)
+                    'play-count-td-classes)
+
+                  "rating_td_classes"
+                  (do
+                    (r/source table-views/rating-td-classes)
+                    (println)
+                    'rating-td-classes)
+
                   (str x)))
 
 
@@ -486,6 +498,25 @@
      ::dt/footer-component table-views/total-play-count-footer}]])
 
 
+(defn marking-individual-elements []
+  [:div
+   [tabs-wrapper
+    :marking-cells
+    [::subs/marking-elements-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play Count"
+      ::dt/td-class-fn  table-views/play-count-td-classes}
+     {::dt/column-key   [:rating]
+      ::dt/column-label "Rating"
+      ::dt/td-class-fn  table-views/rating-td-classes}]
+    {::dt/table-classes ["ui" "celled" "table"]}]])
+
+
+
 
 (defn main-panel []
   (reagent/create-class
@@ -497,8 +528,9 @@
                        ["pagination" "Pagination" pagination]
                        ["sorting" "Sorting" sorting]
                        ["cell-rendering" "Cell Custom Rendering" cell-rendering]
-                       ["rows-selection" "Rows selection" rows-selection]
-                       ["additional-structure" "Additional structure" additional-structure]]]
+                       ["rows-selection" "Rows Selection" rows-selection]
+                       ["additional-structure" "Additional Structure" additional-structure]
+                       ["marking-individual-elements" "Marking Individual Elements" marking-individual-elements]]]
 
          [:div.ui.main.text.container
           [:div.ui.vertical.segment

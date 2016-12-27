@@ -1,6 +1,6 @@
 (ns re-frame-datatable-docs.table-views
   (:require [re-frame.core :as re-frame]
-            [re-frame-datatable-docs.subs :as subs]))
+            [re-frame-datatable-docs.subs]))
 
 
 
@@ -20,4 +20,18 @@
      [:th
       [:strong (str @total-count " total")]]]))
 
+
+
+(defn play-count-td-classes [play-count]
+  [(when (zero? play-count)
+     "disabled")])
+
+
+
+(defn rating-td-classes [rating]
+  [(cond
+     (= 5 rating) "positive"
+     (#{3 4} rating) "warning"
+     (nil? rating) nil ; DataTable will ignore all nil values in classes vector
+     :else "negative")])
 
