@@ -500,6 +500,24 @@
 
 (defn marking-individual-elements []
   [:div
+   [:h5.ui.header "Styling Individual Cells"]
+
+   [:div
+    [:p
+     "Some CSS frameworks can render individual cells differently if specific classes are assigned to the " [:code.inline-code "<td>"] " element. "
+     "DataTable can set these classes via column definition by providing " [:code.inline-code "::td-class-fn"] " option that accepts a function with following signature:"]
+    [:pre
+     [:code {:class "clojure"}
+      "(defn td-class-fn [cell-value row-value]
+  {:post [(seq? %)
+          (every? (fn [t] (or (string? t) (nil? t))))]}
+  ;...
+)"]]
+
+    [:p
+     "i.e. function should return a sequence of CSS classes (represented as strings) that should be applied to " [:code.inline-code "<td>"] " element."]]
+
+
    [tabs-wrapper
     :marking-cells
     [::subs/marking-elements-data]
