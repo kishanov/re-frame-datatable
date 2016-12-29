@@ -5,7 +5,7 @@
                  [org.clojure/core.async "0.2.395"]
                  [reagent "0.6.0"]
                  [re-frame "0.9.1"]
-                 [re-frame-datatable "0.4.0"]]
+                 #_[re-frame-datatable "0.4.0"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 
@@ -20,9 +20,7 @@
   :profiles
   {:dev
    {:dependencies [[binaryage/devtools "0.8.2"]]
-
-    :plugins      [[lein-figwheel "0.5.7"]]
-    }}
+    :plugins      [[lein-figwheel "0.5.7"]]}}
 
   :cljsbuild
   {:builds
@@ -35,8 +33,7 @@
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
                     :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}
-                    }}
+                    :external-config      {:devtools/config {:features-to-install :all}}}}
 
     {:id           "min"
      :source-paths ["src/cljs"]

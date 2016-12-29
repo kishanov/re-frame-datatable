@@ -1,5 +1,6 @@
 (ns re-frame-datatable-docs.table-views
   (:require [re-frame.core :as re-frame]
+            [re-frame-datatable.core]
             [re-frame-datatable-docs.subs]))
 
 
@@ -44,3 +45,11 @@
   [song]
   [(when-not (pos? (:play_count song))
      "warning")])
+
+
+(defn selected-rows-preview []
+  [:pre
+   [:code
+    @(re-frame/subscribe [::re-frame-datatable.core/selected-items
+                          :rows-basic-definition
+                          [::re-frame-datatable-docs.subs/basic-definition-data]])]])

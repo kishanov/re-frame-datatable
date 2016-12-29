@@ -117,6 +117,10 @@
                     (println)
                     'play-count-tr-classes)
 
+                  "selected_rows_preview"
+                  (do
+                    (r/source table-views/selected-rows-preview))
+
                   (str x)))
 
 

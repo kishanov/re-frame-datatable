@@ -319,14 +319,7 @@
      "To access selected items, DataTable provides subsciprtion " [:code.inline-code "::selected-items"] ", which accepts 2 arguments"
      [:ul
       [:li [:code.inline-code "datatable-id"] " - same keyword, that was used in DataTable definition"]
-      [:li [:code.inline-code "data-sub"] " - same subscription vector, that was used in DataTable definition"]]
-
-     "In the example below, right column with selected items is rendered via following subscription:"
-     [:pre
-      [:code {:class "clojure"}
-       "[:pre
-  [:code
-    @(re-frame/subscribe [::dt/selected-items :rows-basic-definition [::subs/basic-definition-data]])]]]"]]]]
+      [:li [:code.inline-code "data-sub"] " - same subscription vector, that was used in DataTable definition"]]]]
 
    [tabs-wrapper
     :rows-selection-basic
@@ -336,10 +329,27 @@
      {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
-     ::dt/selection     {::dt/enabled? true}}]
+     ::dt/selection     {::dt/enabled? true}}
+    [{:data-tab  "selected-items-preview"
+      :label     "Selected Items Source"
+      :component (fn []
+                   [formatters/formatted-code table-views/selected-rows-preview])}]]
 
-   [:p
-    "Row selection also works with pagination and sorting:"]
+   [:div
+    [:p
+     "Row selection also works with pagination and sorting. If pagination is enabled, \"select/unselect all\" will select/unselect all elements on all pages"]
+
+    [warning-message
+     [:div
+      [:p
+       "If you plan to modify the content of DataTable based on selection (for example, select n elements and delete them via separate handler),
+       you also need to dispatch an vent that will unselect all items in DataTable.
+       If you'll not do that, after deteletion some other elements will remain selected based on internal DataTable indexing mechanism."]
+      [:p
+       "To unselect all selected rows, dispatch the following event from the handler which modifies the content of DataTable."]
+      [:pre
+       [:code {:class "clojure"}
+        "[::dt/unselect-all-rows datatable-id]"]]]]]
 
    [tabs-wrapper
     :rows-selection-pagination-sorting
