@@ -4,7 +4,8 @@
             [re-frame.core :as re-frame]
             [re-frame-datatable-docs.formatters :as formatters]
             [re-frame-datatable-docs.table-views :as table-views]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [cljs.repl :as r]))
 
 
 (defn sneak-peek-for-readme []
@@ -35,7 +36,7 @@
 (defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs]]
   (let [data (re-frame/subscribe data-sub)
         example-dom-id (str (name dt-id) "-example")
-        source-dom-id (str (name dt-id) "-source")
+        usage-dom-id (str (name dt-id) "-usage")
         data-dom-id (str (name dt-id) "-data")
         extra-tabs (map #(assoc % :data-tab (str (name dt-id) (:data-tab %)))
                         extra-tabs)]
@@ -47,7 +48,7 @@
           [:a.active.item
            {:data-tab example-dom-id} "Example"]
           [:a.item
-           {:data-tab source-dom-id} "Source"]
+           {:data-tab usage-dom-id} "Usage"]
           [:a.item
            {:data-tab data-dom-id} "Data"]
           (doall
@@ -71,7 +72,7 @@
             dt-def)]
 
          [:div.ui.bottom.attached.tab.segment
-          {:data-tab source-dom-id}
+          {:data-tab usage-dom-id}
           [formatters/formatted-code
            (vec (cons `dt/datatable
                       (->> dt-def (rest) (filter (complement nil?)))))]]
@@ -292,7 +293,15 @@
      {::dt/column-key   [:rating]
       ::dt/column-label "Rating"
       ::dt/render-fn    formatters/rating-formatter}]
-    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
+    [{:data-tab  "formatters-source"
+      :label     "Formatters Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/artist-formatter))
+                    (with-out-str (r/source formatters/duration-formatter))
+                    (with-out-str (r/source formatters/album-formatter))
+                    (with-out-str (r/source formatters/rating-formatter))])}]]
 
    [:h5.ui.header "Using \"item\" argument"]
    [tabs-wrapper
@@ -304,8 +313,13 @@
      {::dt/column-key   [:artist]
       ::dt/column-label "Artist"
       ::dt/render-fn    formatters/artist-formatter}]
-    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
-
+    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
+    [{:data-tab  "formatters-source"
+      :label     "Formatters Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/song-digest-formatter))
+                    (with-out-str (r/source formatters/artist-formatter))])}]]])
 
 
 
@@ -396,7 +410,12 @@
      {::dt/column-key   [:album :year]
       ::dt/column-label "Year"}]
     {::dt/table-classes              ["ui" "celled" "table"]
-     ::dt/extra-header-row-component table-views/aggregation-row}]
+     ::dt/extra-header-row-component table-views/aggregation-row}
+    [{:data-tab  "aggregation-row-source"
+      :label     "Aggregation Row Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/aggregation-row))])}]]
 
    [:h5.ui.header "Footer Component"]
 
@@ -419,7 +438,12 @@
      {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes    ["ui" "celled" "table"]
-     ::dt/footer-component table-views/total-play-count-footer}]])
+     ::dt/footer-component table-views/total-play-count-footer}
+    [{:data-tab  "footer-source"
+      :label     "Footer Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/total-play-count-footer))])}]]])
 
 
 (defn marking-individual-elements []
@@ -457,7 +481,13 @@
      {::dt/column-key   [:rating]
       ::dt/column-label "Rating"
       ::dt/td-class-fn  table-views/rating-td-classes}]
-    {::dt/table-classes ["ui" "celled" "table"]}]
+    {::dt/table-classes ["ui" "celled" "table"]}
+    [{:data-tab  "css-classes-source"
+      :label     "CSS Classes Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/play-count-td-classes))
+                    (with-out-str (r/source table-views/rating-td-classes))])}]]
 
    [:h5.ui.header "Styling Individual Rows"]
    [:div
@@ -484,7 +514,12 @@
      {::dt/column-key   [:rating]
       ::dt/column-label "Rating"}]
     {::dt/table-classes ["ui" "celled" "table"]
-     ::dt/tr-class-fn   table-views/play-count-tr-classes}]])
+     ::dt/tr-class-fn   table-views/play-count-tr-classes}
+    [{:data-tab  "css-classes-source"
+      :label     "CSS Classes Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/play-count-tr-classes))])}]]])
 
 
 
