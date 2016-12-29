@@ -61,3 +61,9 @@
          (take 7)
          (map #(select-keys % [:index :name :rating :play_count])))))
 
+
+(re-frame/reg-sub
+  ::empty-dataset
+  (fn []
+    []))
+

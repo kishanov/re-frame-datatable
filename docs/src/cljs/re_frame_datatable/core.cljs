@@ -273,7 +273,7 @@
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
                {:keys [::selection ::pagination]} state
-               {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component]} options]
+               {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component ::empty-tbody-component]} options]
            [:div.re-colls-datatable
             (when (::enabled? pagination)
               [page-selector db-id pagination])
@@ -290,8 +290,10 @@
                (when (::enabled? selection)
                  [:th
                   [:input {:type      "checkbox"
-                           :checked   (= (::selected-indexes selection) indexes)
-                           :on-change #(re-frame/dispatch [::change-table-selection db-id indexes (-> % .-target .-checked)])}]])
+                           :checked   (and (= (::selected-indexes selection) indexes)
+                                           (not (zero? (count items))))
+                           :on-change #(when-not (zero? (count items))
+                                         (re-frame/dispatch [::change-table-selection db-id indexes (-> % .-target .-checked)]))}]])
 
                (doall
                  (for [{:keys [::column-key ::column-label ::sorting]} columns-def]
@@ -309,35 +311,42 @@
                     column-label]))]]
 
              [:tbody
-              (doall
-                (for [[i data-entry] items]
-                  ^{:key i}
-                  [:tr
-                   (merge
-                     {}
-                     (when tr-class-fn
-                       (css-class-str (tr-class-fn data-entry))))
+              (if (empty? items)
+                [:tr
+                 [:td {:col-span (+ (count columns-def)
+                                    (if (::enabled? selection) 1 0))
+                       :style    {:text-align "center"}}
+                  (if empty-tbody-component
+                    [empty-tbody-component]
+                    "no items")]]
 
-                   (let [{:keys [::selection]} state]
+                (doall
+                  (for [[i data-entry] items]
+                    ^{:key i}
+                    [:tr
+                     (merge
+                       {}
+                       (when tr-class-fn
+                         (css-class-str (tr-class-fn data-entry))))
+
                      (when (::enabled? selection)
                        [:td
                         [:input {:type      "checkbox"
                                  :checked   (contains? (::selected-indexes selection) i)
-                                 :on-change #(re-frame/dispatch [::change-row-selection db-id i (-> % .-target .-checked)])}]]))
+                                 :on-change #(re-frame/dispatch [::change-row-selection db-id i (-> % .-target .-checked)])}]])
 
+                     (doall
+                       (for [{:keys [::column-key ::render-fn ::td-class-fn]} columns-def]
+                         ^{:key (str i \- column-key)}
+                         [:td
+                          (merge
+                            {}
+                            (when td-class-fn
+                              (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))))
 
-                   (doall
-                     (for [{:keys [::column-key ::render-fn ::td-class-fn]} columns-def]
-                       ^{:key (str i \- column-key)}
-                       [:td
-                        (merge
-                          {}
-                          (when td-class-fn
-                            (css-class-str (td-class-fn (get-in data-entry column-key) data-entry))))
-
-                        (if render-fn
-                          [render-fn (get-in data-entry column-key) data-entry]
-                          (get-in data-entry column-key))]))]))]
+                          (if render-fn
+                            [render-fn (get-in data-entry column-key) data-entry]
+                            (get-in data-entry column-key))]))])))]
 
              (when footer-component
                [:tfoot

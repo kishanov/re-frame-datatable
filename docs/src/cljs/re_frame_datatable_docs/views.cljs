@@ -443,7 +443,34 @@
       :label     "Footer Source"
       :component (fn []
                    [formatters/formatted-function-def
-                    (with-out-str (r/source table-views/total-play-count-footer))])}]]])
+                    (with-out-str (r/source table-views/total-play-count-footer))])}]]
+
+   [:h5.ui.header "Empty Dataset"]
+
+   [:div
+    [:p
+     "In case if given subscription returns an empty datasert, DataTable will render single row with all " [:code.inline-code "<td>"]
+     " elements collapsed into single one via " [:code.inline-code ":col-span"] " attribute."]
+    [:p
+     "If you want to provide a custom Reagent component to be rendered inside this empty row, use "
+     [:code.inline-code "::empty-tbody-component"] " option."]]
+
+   [tabs-wrapper
+    :empty-tbody
+    [::subs/empty-dataset]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "Index"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
+    {::dt/table-classes         ["ui" "celled" "table"]
+     ::dt/empty-tbody-component table-views/empty-tbody-formatter}
+    [{:data-tab  "empty-tbody-source"
+      :label     "Empty Row Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/empty-tbody-formatter))])}]]])
 
 
 (defn marking-individual-elements []

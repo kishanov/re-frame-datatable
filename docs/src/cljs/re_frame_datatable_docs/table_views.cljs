@@ -53,3 +53,8 @@
     @(re-frame/subscribe [::re-frame-datatable.core/selected-items
                           :rows-basic-definition
                           [::re-frame-datatable-docs.subs/basic-definition-data]])]])
+
+
+(defn empty-tbody-formatter []
+  [:em
+   "DataTable receieved an empty dataset via subscription"])
