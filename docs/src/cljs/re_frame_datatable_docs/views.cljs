@@ -33,7 +33,7 @@
 
 
 
-(defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs]]
+(defn tabs-wrapper [dt-id data-sub columns-def options & [extra-tabs dt-container]]
   (let [data (re-frame/subscribe data-sub)
         example-dom-id (str (name dt-id) "-example")
         usage-dom-id (str (name dt-id) "-usage")
@@ -63,13 +63,18 @@
             [:div.ui.two.column.divided.grid
              [:div.column
               [:h5.ui.header "Table"]
-              dt-def]
+              (if dt-container
+                [dt-container dt-def]
+                dt-def)]
 
              [:div.column
               [:h5.ui.header "Selected items"]
               [formatters/formatted-code
                @(re-frame/subscribe [::dt/selected-items dt-id data-sub])]]]
-            dt-def)]
+
+            (if dt-container
+              [dt-container dt-def]
+              dt-def))]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab usage-dom-id}
@@ -220,7 +225,12 @@
       ::dt/column-label "Play count"}]
     {::dt/pagination    {::dt/enabled? true
                          ::dt/per-page 5}
-     ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}]])
+     ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
+    nil
+    (fn [dt-def]
+      [:div
+       [table-views/basic-pagination :pagination [::subs/pagination-data]]
+       dt-def])]])
 
 
 (defn sorting []

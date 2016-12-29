@@ -58,3 +58,26 @@
 (defn empty-tbody-formatter []
   [:em
    "DataTable receieved an empty dataset via subscription"])
+
+
+
+(defn basic-pagination [db-id data-sub]
+  (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
+    (fn []
+      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state]
+        [:div.ui.right.floated.pagination.menu
+         [:a.item
+          {:on-click #(re-frame/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state])}
+          [:i.left.chevron.icon]]
+
+         (for [i (range (count pages))]
+           ^{:key i}
+           [:a.item
+            {:class    (when (= i cur-page) "active")
+             :on-click #(re-frame/dispatch [::re-frame-datatable.core/select-page db-id @pagination-state i])}
+            (inc i)])
+
+         [:a.item
+          {:on-click #(re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state])}
+          [:i.right.chevron.icon]]]))))
+
