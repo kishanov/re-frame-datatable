@@ -1,6 +1,7 @@
 (ns re-frame-datatable-docs.views
   (:require [re-frame-datatable.core :as dt]
             [re-frame-datatable-docs.subs :as subs]
+            [re-frame-datatable-docs.events :as events]
             [re-frame.core :as re-frame]
             [re-frame-datatable-docs.formatters :as formatters]
             [re-frame-datatable-docs.table-views :as table-views]
@@ -624,46 +625,49 @@
 
 
 (defn main-panel []
-  (reagent/create-class
-    {:component-function
-     (fn []
-       (let [sections [["usage" "Usage" usage-section]
-                       ["basic" "Basic Definition" basic-definition]
-                       ["css-options" "CSS Options" css-options]
-                       ["pagination" "Pagination" pagination]
-                       ["sorting" "Sorting" sorting]
-                       ["cell-rendering" "Cell Custom Rendering" cell-rendering]
-                       ["rows-selection" "Rows Selection" rows-selection]
-                       ["additional-structure" "Additional Structure" additional-structure]
-                       ["marking-individual-elements" "Marking Individual Elements" marking-individual-elements]]]
+  (let [active-section (re-frame/subscribe [::subs/active-section])]
+    (reagent/create-class
+      {:component-function
+       (fn []
+         (let [sections [["usage" "Usage" usage-section]
+                         ["basic" "Basic Definition" basic-definition]
+                         ["css-options" "CSS Options" css-options]
+                         ["pagination" "Pagination" pagination]
+                         ["sorting" "Sorting" sorting]
+                         ["cell-rendering" "Cell Custom Rendering" cell-rendering]
+                         ["rows-selection" "Rows Selection" rows-selection]
+                         ["additional-structure" "Additional Structure" additional-structure]
+                         ["marking-individual-elements" "Marking Individual Elements" marking-individual-elements]]]
 
-         [:div.ui.main.text.container
-          [:div.ui.vertical.segment
-           [:div.ui.dividing.right.rail
-            [:div.ui.sticky
-             {:style {:min-height "260px"}}
-             [:div.ui.vertical.text.menu
-              (for [[dom-id label] sections]
+           [:div.ui.main.text.container
+            [:div.ui.vertical.segment
+             [:div.ui.dividing.right.rail
+              [:div.ui.sticky
+               {:style {:min-height "260px"}}
+               [:div.ui.vertical.text.menu
+                (doall
+                  (for [[dom-id label] sections]
+                    ^{:key dom-id}
+                    [:a.item
+                     {:href     (str \# dom-id)
+                      :class    (when (= @active-section dom-id) "active")
+                      :on-click #(re-frame/dispatch [::events/set-active-section dom-id])}
+                     label]))]]]
+
+             [:div#context
+              [main-header]
+
+              (for [[dom-id label component] sections]
                 ^{:key dom-id}
-                [:a.item
-                 {:href (str \# dom-id)}
-                 label])]]]
-
-           [:div#context
-            [main-header]
-
-            (for [[dom-id label component] sections]
-              ^{:key dom-id}
-              [:div.ui.section
-               [:a {:id dom-id :class "anchor"}]
-               [:h3.ui.dividing.header label]
-               [component]])]]]))
+                [:div.ui.section
+                 [:a {:id dom-id :class "anchor"}]
+                 [:h3.ui.dividing.header label]
+                 [component]])]]]))
 
 
-     :component-did-mount
-     (fn []
-       (.ready (js/$ js/document)
-               (fn []
-                 (.tab (js/$ ".menu .item"))
-                 (.sticky (js/$ ".ui.sticky") (clj->js {:context "#context"})))))}))
-
+       :component-did-mount
+       (fn []
+         (.ready (js/$ js/document)
+                 (fn []
+                   (.tab (js/$ ".menu .item"))
+                   (.sticky (js/$ ".ui.sticky") (clj->js {:context "#context"})))))})))

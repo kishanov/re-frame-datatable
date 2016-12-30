@@ -6,3 +6,9 @@
   ::initialize-db
   (fn [_ _]
     db/default-db))
+
+
+(re-frame/reg-event-db
+  ::set-active-section
+  (fn [db [_ section]]
+    (assoc db :active-section section)))
