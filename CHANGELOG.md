@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.5.0] - 2016-12-30
+### Breaking
+- Pagination controls are not rendered by default, extracted into separate component
+
+### Added
+- Ability to create own pagination controls
+- Callback to unselect all rows in DataTable
+- Customizable rendering of empty DataTable
+
+### Fixed
+- Empty DataTable doesn't select "selected all" checkbox
+- Default pagination control works correctly with empty DataTable
+
 ## [0.4.0] - 2016-12-27
 ### Added
 - Support for optional extra row inside `<thead>` via `::extra-header-row-component`
