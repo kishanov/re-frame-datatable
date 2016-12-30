@@ -64,7 +64,7 @@
     <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:1.0.0-beta3" level="project" />
     <orderEntry type="library" name="Leiningen: org.mozilla/rhino:1.7R5" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.2" level="project" />
-    <orderEntry type="library" name="Leiningen: re-frame-datatable:0.5.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Leiningen: re-frame-datatable:0.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: re-frame:0.9.1" level="project" />
     <orderEntry type="library" name="Leiningen: reagent:0.6.0" level="project" />
     <orderEntry type="library" name="Leiningen: ring-cors:0.1.8" level="project" />

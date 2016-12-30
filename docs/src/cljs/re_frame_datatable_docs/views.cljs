@@ -114,7 +114,12 @@
    datatable-key ; a keyword, that will be used in re-frame's `app-db` to store datatable state
    subscription-vec ; a vector, which will be used by datatable to render data via `(re-frame/subscribe subscription-vec)`
    columns-def ; a vector of maps, that defines how each column of datatable should look like
-   options] ; optional map of additional options)"]]])
+   options] ; optional map of additional options)"]]
+
+   [info-message
+    [:p "A complete example is available at "
+     [:a {:href "https://kishanov.github.io/re-frame-datatable-example/"}
+      "https://kishanov.github.io/re-frame-datatable-example/"]]]])
 
 
 (defn main-header []
