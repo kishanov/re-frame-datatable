@@ -4,6 +4,12 @@ A UI component for [re-frame](https://github.com/Day8/re-frame).
 Uses existing subscription to data source in re-frame's `app-db` and declarative definition of how to render it as a table.
 Supports sorting, pagination and some basic CSS manipulations for generated table.
 
+## Quick links
+
+* [Documentation Website](https://kishanov.github.io/re-frame-datatable/) - re-frame app that shows how to use differt DataTable options
+* [Complete example app](https://kishanov.github.io/re-frame-datatable-example/) - GMail-like interface which uses most of the features of DataTable component
+
+
 ## Usage
 
 Leiningen
