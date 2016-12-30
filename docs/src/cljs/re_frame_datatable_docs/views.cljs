@@ -59,22 +59,9 @@
 
          [:div.ui.bottom.attached.active.tab.segment
           {:data-tab example-dom-id}
-          (if (get-in options [::dt/selection ::dt/enabled?])
-            [:div.ui.two.column.divided.grid
-             [:div.column
-              [:h5.ui.header "Table"]
-              (if dt-container
-                [dt-container dt-def]
-                dt-def)]
-
-             [:div.column
-              [:h5.ui.header "Selected items"]
-              [formatters/formatted-code
-               @(re-frame/subscribe [::dt/selected-items dt-id data-sub])]]]
-
-            (if dt-container
-              [dt-container dt-def]
-              dt-def))]
+          (if dt-container
+            [dt-container dt-def]
+            dt-def)]
 
          [:div.ui.bottom.attached.tab.segment
           {:data-tab usage-dom-id}
@@ -400,7 +387,17 @@
     [{:data-tab  "selected-items-preview"
       :label     "Selected Items Source"
       :component (fn []
-                   [formatters/formatted-code table-views/selected-rows-preview])}]]
+                   [formatters/formatted-code table-views/selected-rows-preview])}]
+    (fn [dt-def]
+      [:div.ui.two.column.divided.grid
+       [:div.column
+        [:h5.ui.header "Table"]
+        dt-def]
+
+       [:div.column
+        [:h5.ui.header "Selected items"]
+        [formatters/formatted-code
+         @(re-frame/subscribe [::dt/selected-items :rows-selection-basic [::subs/basic-definition-data]])]]])]
 
    [:div
     [:p
@@ -433,7 +430,19 @@
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
      ::dt/selection     {::dt/enabled? true}
      ::dt/pagination    {::dt/enabled? true
-                         ::dt/per-page 5}}]])
+                         ::dt/per-page 5}}
+    nil
+    (fn [dt-def]
+      [:div.ui.two.column.divided.grid
+       [:div.column
+        [:h5.ui.header "Table"]
+        [dt/default-pagination-controls :rows-selection-pagination-sorting [::subs/pagination-data]]
+        dt-def]
+
+       [:div.column
+        [:h5.ui.header "Selected items"]
+        [formatters/formatted-code
+         @(re-frame/subscribe [::dt/selected-items :rows-selection-pagination-sorting [::subs/pagination-data]])]]])]])
 
 
 
@@ -519,7 +528,8 @@
       ::dt/column-label "Play count"}]
     {::dt/table-classes         ["ui" "celled" "table"]
      ::dt/empty-tbody-component table-views/empty-tbody-formatter
-     ::dt/pagination            {::dt/enabled? true}}
+     ::dt/pagination            {::dt/enabled? true}
+     ::dt/selection             {::dt/enabled? true}}
     [{:data-tab  "empty-tbody-source"
       :label     "Empty Row Source"
       :component (fn []

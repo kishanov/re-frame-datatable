@@ -306,7 +306,7 @@
        :component-function
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
-               {:keys [::selection ::pagination]} state
+               {:keys [::selection]} state
                {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component ::empty-tbody-component]} options]
 
            [:table.re-frame-datatable
