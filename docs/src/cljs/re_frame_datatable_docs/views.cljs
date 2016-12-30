@@ -325,13 +325,30 @@
      {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"
       ::dt/sorting      {::dt/enabled? true}}]
-    {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
+    {::dt/table-classes ["ui" "table"]}
     [{:data-tab  "css-example"
       :label     "CSS"
       :component (fn []
                    [:pre
                     [:code {:class "css"}
-                     "div.re-frame-datatable > table > thead th.sorted-by:after {\n    display: inline-block;\n}\n\ndiv.re-frame-datatable > table > thead th.sorted-by.desc:after {\n    content: '\\f0d7';\n}\n\ndiv.re-frame-datatable > table > thead th.asc:after {\n    content: '\\f0d8';\n}\n\ndiv.re-frame-datatable > table > thead th:after {\n    display: none;\n    font-family: Icons;\n    margin-left: .5em;\n}"]])}]]])
+                     "
+ table.re-frame-datatable > thead th.sorted-by:after {
+     display: inline-block;
+ }
+
+ table.re-frame-datatable > thead th.sorted-by.desc:after {
+     content: '\f0d7';
+ }
+
+ table.re-frame-datatable > thead th.asc:after {
+     content: '\f0d8';
+ }
+
+ table.re-frame-datatable > thead th:after {
+     display: none;
+     font-family: Icons;
+     margin-left: .5em;
+ }"]])}]]])
 
 
 
@@ -419,7 +436,9 @@
     [{:data-tab  "selected-items-preview"
       :label     "Selected Items Source"
       :component (fn []
-                   [formatters/formatted-code table-views/selected-rows-preview])}]
+                   [:pre
+                    [:code {:class "clojure"}
+                     (with-out-str (r/source table-views/selected-rows-preview))]])}]
     (fn [dt-def]
       [:div.ui.two.column.divided.grid
        [:div.column

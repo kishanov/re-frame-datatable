@@ -1,3 +1,21 @@
+table.re-frame-datatable > thead th.sorted-by:after {
+    display: inline-block;
+}
+
+table.re-frame-datatable > thead th.sorted-by.desc:after {
+    content: '\f0d7';
+}
+
+table.re-frame-datatable > thead th.asc:after {
+    content: '\f0d8';
+}
+
+table.re-frame-datatable > thead th:after {
+    display: none;
+    font-family: Icons;
+    margin-left: .5em;
+}
+
 .ui.section {
     margin-bottom: 2.5em;
 }
@@ -6,23 +24,4 @@
     background-color: rgba(0, 0, 0, 0.04);
     border-radius: 3px;
 }
-
-div.re-frame-datatable > table > thead th.sorted-by:after {
-    display: inline-block;
-}
-
-div.re-frame-datatable > table > thead th.sorted-by.desc:after {
-    content: '\f0d7';
-}
-
-div.re-frame-datatable > table > thead th.asc:after {
-    content: '\f0d8';
-}
-
-div.re-frame-datatable > table > thead th:after {
-    display: none;
-    font-family: Icons;
-    margin-left: .5em;
-}
-
 
