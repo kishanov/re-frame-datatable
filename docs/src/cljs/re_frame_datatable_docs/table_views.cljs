@@ -64,13 +64,19 @@
 (defn basic-pagination [db-id data-sub]
   (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
     (fn []
-      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state]
-        [:div.ui.right.floated.pagination.menu
+      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
+            total-pages (count pages)
+            next-enabled? (< cur-page (dec total-pages))
+            prev-enabled? (pos? cur-page)]
+
+        [:div.ui.pagination.menu
          [:a.item
-          {:on-click #(re-frame/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state])}
+          {:on-click #(when prev-enabled?
+                        (re-frame/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state]))
+           :class    (when-not prev-enabled? "disabled")}
           [:i.left.chevron.icon]]
 
-         (for [i (range (count pages))]
+         (for [i (range total-pages)]
            ^{:key i}
            [:a.item
             {:class    (when (= i cur-page) "active")
@@ -78,6 +84,38 @@
             (inc i)])
 
          [:a.item
-          {:on-click #(re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state])}
+          {:on-click #(when next-enabled?
+                        (re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))
+           :class    (when-not next-enabled? "disabled")}
           [:i.right.chevron.icon]]]))))
 
+
+
+(defn gmail-like-pagination [db-id data-sub]
+  (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
+    (fn []
+      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
+            total-pages (count pages)
+            next-enabled? (< cur-page (dec total-pages))
+            prev-enabled? (pos? cur-page)]
+
+        [:div
+         [:div {:style {:display      "inline-block"
+                        :margin-right ".5em"}}
+          [:strong
+           (str (inc (first (get pages cur-page))) "-" (inc (second (get pages cur-page))))]
+          [:span " of "]
+          [:strong (inc (second (last pages)))]]
+
+         [:div.ui.pagination.mini.menu
+          [:a.item
+           {:on-click #(when prev-enabled?
+                         (re-frame/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state]))
+            :class    (when-not prev-enabled? "disabled")}
+           [:i.left.chevron.icon]]
+
+          [:a.item
+           {:on-click #(when next-enabled?
+                         (re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))
+            :class    (when-not next-enabled? "disabled")}
+           [:i.right.chevron.icon]]]]))))

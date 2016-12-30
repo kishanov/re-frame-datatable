@@ -225,12 +225,55 @@
       ::dt/column-label "Play count"}]
     {::dt/pagination    {::dt/enabled? true
                          ::dt/per-page 5}
-     ::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
-    nil
+     ::dt/table-classes ["ui" "table"]}
+    [{:data-tab  "default-pagination-controls-usage"
+      :label     "Default Pagination Controls Usage"
+      :component (fn []
+                   [:pre
+                    [:code {:class "clojure"}
+                     "[dt/default-pagination-controls :pagination [::subs/pagination-data]]"]])}]
     (fn [dt-def]
-      [:div
-       [table-views/basic-pagination :pagination [::subs/pagination-data]]
-       dt-def])]])
+      [:div.ui.grid
+       [:div.row
+        [:div.right.aligned.column
+         [dt/default-pagination-controls :pagination [::subs/pagination-data]]]]
+       [:div.row
+        [:div.column
+         dt-def]]
+       [:div.row
+        [:div.right.aligned.column
+         [dt/default-pagination-controls :pagination [::subs/pagination-data]]]]])]
+
+
+   [tabs-wrapper
+    :pagination-custom-controls
+    [::subs/pagination-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:play_count]
+      ::dt/column-label "Play count"}]
+    {::dt/pagination    {::dt/enabled? true
+                         ::dt/per-page 5}
+     ::dt/table-classes ["ui" "table"]}
+    [{:data-tab  "pagination-controls-source"
+      :label     "Pagination Controls Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source table-views/basic-pagination))
+                    (with-out-str (r/source table-views/gmail-like-pagination))])}]
+    (fn [dt-def]
+      [:div.ui.two.column.grid
+       [:div.column dt-def]
+       [:div.column
+        [:div {:style {:margin-bottom "1em"}}
+         [:h5.ui.herader "Basic pagination controls"]
+         [table-views/basic-pagination :pagination-custom-controls [::subs/pagination-data]]]
+
+        [:div {:style {:margin-bottom "1em"}}
+         [:h5.ui.herader "GMAIL-like pagination controls"]
+         [table-views/gmail-like-pagination :pagination-custom-controls [::subs/pagination-data]]]]])]])
 
 
 (defn sorting []

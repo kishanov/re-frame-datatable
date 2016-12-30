@@ -171,8 +171,8 @@
                           (let [{:keys [::cur-page ::per-page ::enabled?]} (::pagination state)]
                             (if enabled?
                               (->> coll
-                                   (drop (* cur-page per-page))
-                                   (take per-page))
+                                   (drop (* (or cur-page 0) (or per-page 0)))
+                                   (take (or per-page 0)))
                               coll)))]
 
       {::items   (->> items
@@ -180,9 +180,7 @@
                       (sort-data)
                       (paginate-data))
        ::indexes (set (range (count items)))
-       ::state   (-> state
-                     (assoc-in [::pagination ::total-pages]
-                               (Math/ceil (/ (count items) (get-in state [::pagination ::per-page])))))})))
+       ::state   state})))
 
 
 (re-frame/reg-sub
@@ -215,7 +213,7 @@
          (->> items
               (map-indexed vector)
               (map first)
-              (partition-all (::per-page pagination))
+              (partition-all (or (::per-page pagination) 1))
               (mapv (fn [i] [(first i) (last i)])))}))))
 
 
@@ -245,58 +243,44 @@
   (fn [db [db-id pagination-state page-idx]]
     (let [pagination-db-path (vec (concat (state-db-path db-id) [::pagination]))
           {:keys [::pages]} pagination-state]
-      (assert (<= 0 page-idx (dec (count pages))))
       (assoc-in db (conj pagination-db-path ::cur-page) page-idx))))
 
 
+(defn default-pagination-controls [db-id data-sub]
+  (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
+    (fn []
+      (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
+            total-pages (count pages)]
+
+        [:div.re-frame-datatable.page-selector
+         (let [prev-enabled? (pos? cur-page)]
+           [:span
+            {:on-click #(when prev-enabled?
+                          (re-frame/dispatch [::re-frame-datatable.core/select-prev-page db-id @pagination-state]))
+             :style    {:cursor (when prev-enabled? "pointer")
+                        :color  (when-not prev-enabled? "rgba(40,40,40,.3)")}}
+            (str \u25C4 " PREVIOUS ")])
+
+         [:select
+          {:value     (or cur-page 0)
+           :on-change #(re-frame/dispatch [::re-frame-datatable.core/select-page db-id @pagination-state (js/parseInt (-> % .-target .-value))])}
+          (doall
+            (for [page-index (range (count pages))]
+              ^{:key page-index}
+              [:option
+               {:value page-index}
+               (str "Page " (inc page-index) " of " (count pages))]))]
+
+         (let [next-enabled? (< cur-page (dec total-pages))]
+           [:span
+            {:style    {:cursor (when next-enabled? "pointer")
+                        :color  (when-not next-enabled? "rgba(40,40,40,.3)")}
+             :on-click #(when next-enabled?
+                          (re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))}
+            (str " NEXT " \u25BA)])]))))
+
 
 ; --- Views ---
-
-#_(defn page-selector [db-id pagination]
-    (let [{:keys [::total-pages ::cur-page]} pagination]
-      [:div.page-selector
-       {:style {:float         "right"
-                :margin-bottom "1em"}}
-       (let [prev-enabled? (not= cur-page 0)]
-         [:span
-          (merge
-            {:on-click #(when prev-enabled?
-                          (re-frame/dispatch [::change-state-value
-                                              db-id
-                                              [::pagination ::cur-page]
-                                              (dec cur-page)]))
-             :style    {:cursor "pointer"}}
-            (when-not prev-enabled?
-              {:disabled "disabled"}))
-          (str \u25C4 " PREVIOUS ")])
-
-
-       [:select
-        {:value     cur-page
-         :on-change #(re-frame/dispatch [::change-state-value
-                                         db-id
-                                         [::pagination ::cur-page]
-                                         (js/parseInt (-> % .-target .-value))])}
-        (doall
-          (for [page-index (range total-pages)]
-            ^{:key page-index}
-            [:option
-             {:value page-index}
-             (str "Page " (inc page-index) " of " total-pages)]))]
-
-       (let [next-enabled? (not= cur-page (dec total-pages))]
-         [:span
-          (merge
-            {:on-click #(when next-enabled?
-                          (re-frame/dispatch [::change-state-value
-                                              db-id
-                                              [::pagination ::cur-page]
-                                              (inc cur-page)]))
-             :style    {:cursor "pointer"}}
-            (when-not next-enabled?
-              {:disabled "disabled"}))
-          (str " NEXT " \u25BA)])]))
-
 
 (defn datatable [db-id data-sub columns-def & [options]]
   {:pre [(or (s/valid? ::db-id db-id)
