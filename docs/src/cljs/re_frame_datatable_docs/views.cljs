@@ -518,12 +518,22 @@
      {::dt/column-key   [:play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes         ["ui" "celled" "table"]
-     ::dt/empty-tbody-component table-views/empty-tbody-formatter}
+     ::dt/empty-tbody-component table-views/empty-tbody-formatter
+     ::dt/pagination            {::dt/enabled? true}}
     [{:data-tab  "empty-tbody-source"
       :label     "Empty Row Source"
       :component (fn []
                    [formatters/formatted-function-def
-                    (with-out-str (r/source table-views/empty-tbody-formatter))])}]]])
+                    (with-out-str (r/source table-views/empty-tbody-formatter))])}]
+
+    (fn [dt-def]
+      [:div.ui.grid
+       [:div.row
+        [:div.right.aligned.column
+         [dt/default-pagination-controls :empty-tbody [::subs/empty-dataset]]]]
+       [:div.row
+        [:div.column
+         dt-def]]])]])
 
 
 (defn marking-individual-elements []

@@ -208,13 +208,13 @@
   (fn [[state items]]
     (let [{:keys [::pagination]} state]
       (merge
-        (select-keys pagination [::per-page ::cur-page])
-        {::pages
-         (->> items
-              (map-indexed vector)
-              (map first)
-              (partition-all (or (::per-page pagination) 1))
-              (mapv (fn [i] [(first i) (last i)])))}))))
+        (select-keys pagination [::per-page])
+        {::cur-page (or (::cur-page pagination) 0)
+         ::pages    (->> items
+                         (map-indexed vector)
+                         (map first)
+                         (partition-all (or (::per-page pagination) 1))
+                         (mapv (fn [i] [(first i) (last i)])))}))))
 
 
 (re-frame/reg-event-db
@@ -250,7 +250,7 @@
   (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state db-id data-sub])]
     (fn []
       (let [{:keys [::re-frame-datatable.core/cur-page ::re-frame-datatable.core/pages]} @pagination-state
-            total-pages (count pages)]
+            total-pages (if (pos? (count pages)) (count pages) 1)]
 
         [:div.re-frame-datatable.page-selector
          (let [prev-enabled? (pos? cur-page)]
@@ -262,14 +262,14 @@
             (str \u25C4 " PREVIOUS ")])
 
          [:select
-          {:value     (or cur-page 0)
+          {:value     cur-page
            :on-change #(re-frame/dispatch [::re-frame-datatable.core/select-page db-id @pagination-state (js/parseInt (-> % .-target .-value))])}
           (doall
-            (for [page-index (range (count pages))]
+            (for [page-index (range total-pages)]
               ^{:key page-index}
               [:option
                {:value page-index}
-               (str "Page " (inc page-index) " of " (count pages))]))]
+               (str "Page " (inc page-index) " of " total-pages)]))]
 
          (let [next-enabled? (< cur-page (dec total-pages))]
            [:span
