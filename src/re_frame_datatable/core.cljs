@@ -1,6 +1,7 @@
 (ns re-frame-datatable.core
   (:require-macros [reagent.ratom :refer [reaction]])
-  (:require [reagent.core :as reagent]
+  (:require [clojure.string :as str]
+            [reagent.core :as reagent]
             [re-frame.core :as re-frame :refer [trim-v]]
             [cljs.spec :as s]))
 
@@ -18,11 +19,13 @@
 (s/def ::column-label string?)
 (s/def ::sorting (s/keys :req [::enabled?]))
 (s/def ::td-class-fn fn?)
-
+(s/def ::filter-type #{::substring ::single-select ::multiple-select ::numeric})
+(s/def ::initial-filter any?)
+(s/def ::filtering (s/keys :req [::enabled?] :opt [::filter-type ::initial-filter]))
 
 (s/def ::column-def
   (s/keys :req [::column-key ::column-label]
-          :opt [::sorting ::render-fn ::td-class-fn]))
+          :opt [::sorting ::render-fn ::td-class-fn ::filtering]))
 
 (s/def ::columns-def (s/coll-of ::column-def :min-count 1))
 
@@ -61,7 +64,7 @@
 (def state-db-path (partial db-path-for [::state]))
 (def sort-key-db-path (partial db-path-for [::state ::sort ::sort-key]))
 (def sort-comp-db-path (partial db-path-for [::state ::sort ::sort-comp]))
-
+(def filter-db-path (partial db-path-for [::state ::filter]))
 
 ; --- Defaults ---
 
@@ -75,7 +78,12 @@
                (clojure.string/join \space))})
 
 
-
+(defn create-filter-state [columns-def]
+  (mapv #(when (::filtering %)
+           {::type (-> % ::filtering ::filter-type)
+            ::keys (::column-key %)
+            ::value (-> % ::filtering ::initial-filter)})
+        columns-def))
 ; --- Events ---
 
 (re-frame/reg-event-db
@@ -92,7 +100,8 @@
                                         ::cur-page 0}
                                        (select-keys (::pagination options) [::per-page ::enabled?]))
                    ::selection  (merge {::selected-indexes #{}}
-                                       (select-keys (::selection options) [::enabled?]))}))))
+                                       (select-keys (::selection options) [::enabled?]))
+                   ::filter (create-filter-state columns-def)}))))
 
 
 (re-frame/reg-event-db
@@ -145,6 +154,11 @@
   (fn [db [db-id]]
     (assoc-in db (vec (concat (state-db-path db-id) [::selection ::selected-indexes])) #{})))
 
+(re-frame/reg-event-db
+ ::set-filter
+ [trim-v]
+ (fn [db [db-id column-idx filter-value]] ;; TODO validate shape of `filter-value`
+   (assoc-in db (vec (concat (filter-db-path db-id) [column-idx ::value])) filter-value)))
 
 ; --- Subs ---
 
@@ -153,20 +167,56 @@
   (fn [db [_ db-id]]
     (get-in db (state-db-path db-id))))
 
+(re-frame/reg-sub
+ ::definition
+ (fn [db [_ db-id]]
+   {::options     (get-in db (options-db-path     db-id))
+    ::columns-def (get-in db (columns-def-db-path db-id))}))
+
+(re-frame/reg-sub
+ ::filter-options
+ (fn [[_ db-id data-sub]]
+    [(re-frame/subscribe data-sub)
+     (re-frame/subscribe [::state db-id])])
+ (fn [[items state]]
+   (vec
+    (for [{:keys [::keys ::type ::value] :as m} (::filter state)
+          :let [opts (when (#{::single-select ::multiple-select} type) (->> items (map #(get-in % keys)) distinct sort))
+                f (fn [filter-fn]
+                    (fn [entry]
+                      (or (empty? value)
+                          (filter-fn entry))))]]
+      (case type
+        ::substring       (assoc m ::fn (f #(str/includes? (str/lower-case %) (str/lower-case value))))
+        ::numeric         (assoc m ::fn (f #(({:< < :> > :>= >= :<= <= := =} (:op value)) % (:value value))))
+        ::single-select   (assoc m ::fn (f #(= % value)) ::options opts)
+        ::multiple-select (assoc m ::fn (f #(some (partial = %) value)) ::options opts)
+        nil)))))
+
+(re-frame/reg-sub
+ ::filtered-data
+ (fn [[_ db-id data-sub]]
+   [(re-frame/subscribe data-sub)
+    (re-frame/subscribe [::filter-options db-id data-sub])])
+ (fn [[items filters]]
+   (for [row items
+         :when (every? (fn [{ks ::keys f ::fn}]
+                         (or (nil? f) (f (get-in row ks))))
+                       filters)]
+     row)))
 
 (re-frame/reg-sub
   ::data
   (fn [[_ db-id data-sub]]
     [(re-frame/subscribe data-sub)
-     (re-frame/subscribe [::state db-id])])
-
-  (fn [[items state]]
+     (re-frame/subscribe [::state db-id])
+     (re-frame/subscribe [::filtered-data db-id data-sub])])
+  (fn [[items state filtered-items]]
     (let [sort-data (fn [coll]
                       (let [{:keys [::sort-key ::sort-comp]} (::sort state)]
                         (if sort-key
                           (sort-by #(get-in (second %) sort-key) sort-comp coll)
                           coll)))
-
           paginate-data (fn [coll]
                           (let [{:keys [::cur-page ::per-page ::enabled?]} (::pagination state)]
                             (if enabled?
@@ -175,8 +225,8 @@
                                    (take (or per-page 0)))
                               coll)))]
 
-      {::items   (->> items
-                      (map-indexed vector)
+      {::items   (->> filtered-items
+                      (map-indexed vector)                      
                       (sort-data)
                       (paginate-data))
        ::indexes (set (range (count items)))
@@ -186,9 +236,8 @@
 (re-frame/reg-sub
   ::selected-items
   (fn [[_ db-id data-sub]]
-    [(re-frame/subscribe data-sub)
+    [(re-frame/subscribe data-sub)     
      (re-frame/subscribe [::state db-id])])
-
   (fn [[items state]]
     (->> items
          (map-indexed vector)
@@ -204,13 +253,16 @@
   ::pagination-state
   (fn [[_ db-id data-sub]]
     [(re-frame/subscribe [::state db-id])
-     (re-frame/subscribe data-sub)])
-  (fn [[state items]]
+     (re-frame/subscribe data-sub)
+     (re-frame/subscribe [::filtered-data db-id data-sub])])
+  (fn [[state items filtered-items]]
     (let [{:keys [::pagination]} state]
       (merge
         (select-keys pagination [::per-page])
         {::cur-page (or (::cur-page pagination) 0)
-         ::pages    (->> items
+         ::n {::all (count items)
+              ::filtered (count filtered-items)}         
+         ::pages    (->> filtered-items
                          (map-indexed vector)
                          (map first)
                          (partition-all (or (::per-page pagination) 1))
@@ -279,6 +331,73 @@
                           (re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))}
             (str " NEXT " \u25BA)])]))))
 
+; --- rendering of default filter controls ---
+;------------------------------------------------------------------------------------------------------------------
+
+(defmulti filter-input (fn [db-id column-index {t ::type}] t))
+
+
+(defmethod filter-input ::substring [db-id column-idx {:keys [::value]}]
+  [:input {:type "text"
+           :value value
+           :on-change #(re-frame/dispatch [::set-filter db-id column-idx (-> % .-target .-value)])}])
+
+
+(defmethod filter-input ::single-select [db-id column-idx {:keys [::value ::options]}]
+  [:select {:on-change #(let [idx (js/parseInt (-> % .-target .-value))]
+                          (re-frame/dispatch [::set-filter db-id column-idx (when (not= -1 idx) (nth options idx))]))}
+   (cons ^{:key -1} [:option {:value -1} ""]
+         (for [[idx o] (map-indexed vector options)]
+           ^{:key idx} [:option {:value idx} o]))])
+
+
+(defmethod filter-input ::multiple-select [db-id column-idx {:keys [::value ::options]}]
+  [:select {:multiple true
+            :on-change (fn [evt]
+                         (let [dom-options (-> evt .-target .-options)
+                               selected (keep #(when (.-selected %) (js/parseInt (.-value %))) (array-seq dom-options 0))]                          
+                           (re-frame/dispatch [::set-filter db-id column-idx (when (not= [-1] selected) (mapv #(nth options %) selected))])))}
+   (cons ^{:key -1} [:option {:value -1} ""]
+         (for [[idx o] (map-indexed vector options)]
+           ^{:key idx} [:option {:value idx} o]))])
+
+
+(defmethod filter-input ::numeric [db-id column-idx {{:keys [op value]} ::value}]
+  (let [id (str db-id column-idx)
+        select-id (str id "-select")
+        text-id (str id "-number")
+        operations [:< :> :<= :>= :=]
+        set-filter! (fn [evt]
+                      (let [op (->> select-id
+                                    js/document.getElementById
+                                    .-value
+                                    js/parseInt
+                                    (nth operations))
+                            number (js/parseFloat (.-value (js/document.getElementById text-id)))]
+                        (re-frame/dispatch [::set-filter db-id column-idx (when (not (js/isNaN number)) {:op op :value number})])))]
+    [:span
+     [:select {:id select-id
+               :style {:padding-right "10px"}
+               :on-change set-filter!}
+      (for [[idx op] (map-indexed vector operations)]
+        ^{:key idx} [:option {:value idx} (name op)])]
+     [:input {:id text-id
+              :style {:width "60px"}
+              :type "text"
+              :value value
+              :on-change set-filter!}]]))
+
+
+(defmethod filter-input :default [_ _ filt]
+  [:span "TODO"])
+
+
+(defn default-filter-row [db-id data-sub]
+  (let [filters (re-frame/subscribe [::filter-options db-id data-sub])]
+    (fn []
+      [:tr
+       (for [[idx filt] (map-indexed vector @filters)]
+         ^{:key idx} [:td (when filt [filter-input db-id idx filt])])])))
 
 ; --- Views ---
 
@@ -302,11 +421,10 @@
        :component-will-unmount
        #(re-frame/dispatch [::unmount db-id])
 
-
        :component-function
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
-               {:keys [::selection]} state
+               {selection ::selection filters ::filter} state
                {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component ::empty-tbody-component]} options]
 
            [:table.re-frame-datatable
@@ -339,7 +457,9 @@
                                        (if (= < (get-in state [::sort ::sort-comp]))
                                          "asc"
                                          "desc")])))
-                   column-label]))]]
+                   column-label]))]
+             (when (some (comp not nil?) filters)
+               [default-filter-row db-id data-sub])]
 
             [:tbody
              (if (empty? items)
