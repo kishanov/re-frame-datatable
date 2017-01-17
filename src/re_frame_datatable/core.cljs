@@ -333,7 +333,8 @@
                    (merge
                      (when (::enabled? sorting)
                        {:style    {:cursor "pointer"}
-                        :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])})
+                        :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])
+                        :class "sorted-by"})
                      (when (= column-key (get-in state [::sort ::sort-key]))
                        (css-class-str ["sorted-by"
                                        (if (= < (get-in state [::sort ::sort-comp]))
