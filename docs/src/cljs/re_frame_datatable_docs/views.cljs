@@ -144,20 +144,34 @@
 (defn basic-definition []
   [:div
    [:div
-    "There are only 2 mandatory definitions that should be provided for each map in "
-    [:code.inline-code "columns-def"] " vector:"
+    [:p
+     "There is only 1 mandatory parameter that should be provided for each map in "
+     [:code.inline-code "columns-def"] " vector:"]
     [:ul.ui.list
-     [:li [:code.inline-code "::column-key"] " - a vector that is used to access value of each item via " [:code "get-in"]]
-     [:li [:code.inline-code "::column-label"] " - a string that will be a header for a column"]]]
+     [:li [:code.inline-code "::column-key"] " - a vector that is used to access value of each item via " [:code "get-in"]]]
+
+    [:p
+     "To specify the label for the column (the one that will be rendered for a given column inside " [:code.inline-code "<th>"] " element of header row)"
+     ", use " [:code.inline-code "::column-label"] " parameter. It can be one of the following:"]
+
+    [:ul.ui.list
+     [:li "A string, that will be rendered as is"]
+     [:li "A Reagent component"]]]
+
    [tabs-wrapper
     :basic-definition
     [::subs/basic-definition-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
+    [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:play_count]
-      ::dt/column-label "Play count"}]]])
+      ::dt/column-label formatters/play-count-th}]
+    nil
+    [{:data-tab  "th-fourammter-source"
+      :label     "Play Count Formatter Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/play-count-th))])}]]])
 
 
 (defn css-options []
@@ -189,13 +203,17 @@
    [tabs-wrapper
     :css-options
     [::subs/basic-definition-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
+    [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:play_count]
-      ::dt/column-label "Play count"}]
-    {::dt/table-classes ["ui" "celled" "stripped" "table"]}]])
+      ::dt/column-label formatters/play-count-th}]
+    {::dt/table-classes ["ui" "celled" "stripped" "table"]}
+    [{:data-tab  "th-fourammter-source"
+      :label     "Play Count Formatter Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/play-count-th))])}]]])
 
 
 
