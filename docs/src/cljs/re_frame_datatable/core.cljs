@@ -314,43 +314,50 @@
        (fn [db-id data-sub columns-def & [options]]
          (let [{:keys [::items ::state ::indexes]} @view-data
                {:keys [::selection]} state
-               {:keys [::table-classes ::tr-class-fn ::extra-header-row-component ::footer-component ::empty-tbody-component]} options]
+               {:keys [::table-classes
+                       ::tr-class-fn
+                       ::header-enabled?
+                       ::extra-header-row-component
+                       ::footer-component
+                       ::empty-tbody-component]} options]
 
            [:table.re-frame-datatable
             (when table-classes
               (css-class-str table-classes))
 
-            [:thead
-             (when extra-header-row-component
-               [extra-header-row-component])
+            (when-not (= header-enabled? false)
+              [:thead
+               (when extra-header-row-component
+                 [extra-header-row-component])
 
-             [:tr
-              (when (::enabled? selection)
-                [:th
-                 [:input {:type      "checkbox"
-                          :checked   (and (= (::selected-indexes selection) indexes)
-                                          (not (zero? (count items))))
-                          :on-change #(when-not (zero? (count items))
-                                        (re-frame/dispatch [::change-table-selection db-id indexes (-> % .-target .-checked)]))}]])
-
-              (doall
-                (for [{:keys [::column-key ::column-label ::sorting]} columns-def]
-                  ^{:key (str column-key)}
+               [:tr
+                (when (::enabled? selection)
                   [:th
-                   (merge
-                     (when (::enabled? sorting)
-                       {:style    {:cursor "pointer"}
-                        :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])
-                        :class    "sorted-by"})
-                     (when (= column-key (get-in state [::sort ::sort-key]))
-                       (css-class-str ["sorted-by"
-                                       (if (= < (get-in state [::sort ::sort-comp]))
-                                         "asc"
-                                         "desc")])))
-                   (cond
-                     (string? column-label) column-label
-                     (fn? column-label) [column-label]
-                     :else "")]))]]
+                   [:input {:type      "checkbox"
+                            :checked   (and (= (::selected-indexes selection) indexes)
+                                            (not (zero? (count items))))
+                            :on-change #(when-not (zero? (count items))
+                                          (re-frame/dispatch [::change-table-selection db-id indexes (-> % .-target .-checked)]))}]])
+
+                (doall
+                  (for [{:keys [::column-key ::column-label ::sorting]} columns-def]
+                    ^{:key (str column-key)}
+                    [:th
+                     (merge
+                       (when (::enabled? sorting)
+                         {:style    {:cursor "pointer"}
+                          :on-click #(re-frame/dispatch [::set-sort-key db-id column-key])
+                          :class    "sorted-by"})
+                       (when (= column-key (get-in state [::sort ::sort-key]))
+                         (css-class-str ["sorted-by"
+                                         (if (= < (get-in state [::sort ::sort-comp]))
+                                           "asc"
+                                           "desc")])))
+                     (cond
+                       (string? column-label) column-label
+                       (fn? column-label) [column-label]
+                       :else "")]))]])
+
 
             [:tbody
              (if (empty? items)
