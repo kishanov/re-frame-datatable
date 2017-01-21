@@ -13,9 +13,8 @@
   [dt/datatable
    :songs
    [::subs/songs-list]
-   [{::dt/column-key   [:index]
-     ::dt/sorting      {::dt/enabled? true}
-     ::dt/column-label "#"}
+   [{::dt/column-key [:index]
+     ::dt/sorting    {::dt/enabled? true}}
     {::dt/column-key   [:name]
      ::dt/column-label "Name"}
     {::dt/column-key   [:duration]
