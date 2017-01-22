@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.5.1] - 2017-01-17
+### Added
+- ::column-label became optional
+- ::column-label can now accept either string as before or an arbitrary Reagent component
+- New option: ::header-enabled? which can be used to prevent DataTable from <thead> rendering
+- "sortable" columns are marked with special class for styling via CSS
+
 ## [0.5.0] - 2016-12-30
 ### Breaking
 - Pagination controls are not rendered by default, extracted into separate component

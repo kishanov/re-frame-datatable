@@ -13,9 +13,8 @@
   [dt/datatable
    :songs
    [::subs/songs-list]
-   [{::dt/column-key   [:index]
-     ::dt/sorting      {::dt/enabled? true}
-     ::dt/column-label "#"}
+   [{::dt/column-key [:index]
+     ::dt/sorting    {::dt/enabled? true}}
     {::dt/column-key   [:name]
      ::dt/column-label "Name"}
     {::dt/column-key   [:duration]
@@ -144,20 +143,51 @@
 (defn basic-definition []
   [:div
    [:div
-    "There are only 2 mandatory definitions that should be provided for each map in "
-    [:code.inline-code "columns-def"] " vector:"
+    [:p
+     "There is only 1 mandatory parameter that should be provided for each map in "
+     [:code.inline-code "columns-def"] " vector:"]
     [:ul.ui.list
-     [:li [:code.inline-code "::column-key"] " - a vector that is used to access value of each item via " [:code "get-in"]]
-     [:li [:code.inline-code "::column-label"] " - a string that will be a header for a column"]]]
+     [:li [:code.inline-code "::column-key"] " - a vector that is used to access value of each item via " [:code "get-in"]]]
+
+    [:p
+     "To specify the label for the column (the one that will be rendered for a given column inside " [:code.inline-code "<th>"] " element of header row)"
+     ", use " [:code.inline-code "::column-label"] " parameter. It can be one of the following:"]
+
+    [:ul.ui.list
+     [:li "A string, that will be rendered as is"]
+     [:li "A Reagent component"]]]
+
    [tabs-wrapper
     :basic-definition
     [::subs/basic-definition-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
+    [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:play_count]
-      ::dt/column-label "Play count"}]]])
+      ::dt/column-label formatters/play-count-th}]
+    nil
+    [{:data-tab  "th-fourammter-source"
+      :label     "Play Count Formatter Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/play-count-th))])}]]
+
+   [:p
+    "It is also possible to configure DataTable not to render header at all - "
+    "just pass " [:code.inline-code "::header-enabled?"] " option set to false."]
+
+   [warning-message
+    [:div
+     "Notice that " [:code.inline-code "::header-enabled?"] " has precedence over any of the specified " [:code.inline-code "::column-label"]
+     "In the example below, header is not rendered even after " [:code.inline-code "::column-label"] " was specified for the second column."]]
+
+   [tabs-wrapper
+    :basic-definition-no-header
+    [::subs/basic-definition-data]
+    [{::dt/column-key [:index]}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}]
+    {::dt/header-enabled? false}]])
 
 
 (defn css-options []
@@ -189,13 +219,17 @@
    [tabs-wrapper
     :css-options
     [::subs/basic-definition-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
+    [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
      {::dt/column-key   [:play_count]
-      ::dt/column-label "Play count"}]
-    {::dt/table-classes ["ui" "celled" "stripped" "table"]}]])
+      ::dt/column-label formatters/play-count-th}]
+    {::dt/table-classes ["ui" "celled" "stripped" "table"]}
+    [{:data-tab  "th-fourammter-source"
+      :label     "Play Count Formatter Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/play-count-th))])}]]])
 
 
 
@@ -204,8 +238,8 @@
    [:div
     "Pagination can be enabled via " [:code.inline-code "::pagination"] " key. There are 2 options:"
     [:ul.ui.list
-     [:li [:code.inline-code "enabled?"] " - boolean to define if pagination should be enabled"]
-     [:li [:code.inline-code "per-page"] " - integer to define how many elements should be shown per page (default is 10)"]]]
+     [:li [:code.inline-code "::enabled?"] " - boolean to define if pagination should be enabled"]
+     [:li [:code.inline-code "::per-page"] " - integer to define how many elements should be shown per page (default is 10)"]]]
 
    [warning-message
     [:div

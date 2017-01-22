@@ -5,7 +5,7 @@
                  [org.clojure/core.async "0.2.395"]
                  [reagent "0.6.0"]
                  [re-frame "0.9.1"]
-                 [re-frame-datatable "0.5.0"]]
+                 [re-frame-datatable "0.5.1"]]
 
   :plugins [[lein-cljsbuild "1.1.4"]]
 

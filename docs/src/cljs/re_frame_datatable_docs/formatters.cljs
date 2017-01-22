@@ -77,3 +77,10 @@
       [:code {:class "clojure"}
        source]])
    [:br]])
+
+
+
+(defn play-count-th []
+  [:div
+   {:data-tooltip "Play count"}
+   [:i.music.icon]])
