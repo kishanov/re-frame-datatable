@@ -1,4 +1,4 @@
-(ns st.views.re-frame-datatable
+(ns re-frame-datatable.core
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame :refer [trim-v]]
