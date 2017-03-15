@@ -275,47 +275,45 @@
 (defn default-pagination-controls [db-id data-sub]
   (let [pagination-state
         (re-frame/subscribe
-         [::re-frame-datatable.core/pagination-state db-id data-sub])]
+         [::pagination-state db-id data-sub])]
     (fn []
-      (if (not pagination-state)
-        [:div.re-frame-datatable.page-selector]
-        (let [{:keys [::re-frame-datatable.core/cur-page
-                      ::re-frame-datatable.core/pages]}    @pagination-state
-              total-pages (if (pos? (count pages)) (count pages) 1)]
-          [:div.re-frame-datatable.page-selector
-           (let [prev-enabled? (pos? cur-page)]
-             [:span
-              {:on-click
-               #(when prev-enabled?
-                  (re-frame/dispatch
-                   [::re-frame-datatable.core/select-prev-page
-                    db-id @pagination-state]))
-               :style    {:cursor (when prev-enabled? "pointer")
-                          :color  (when-not prev-enabled? "rgba(40,40,40,.3)")}}
-              (str \u25C4 " PREVIOUS ")])
+      (let [{:keys [::cur-page
+                    ::pages]}    @pagination-state
+            total-pages (if (pos? (count pages)) (count pages) 1)]
+        [:div.re-frame-datatable.page-selector
+         (let [prev-enabled? (pos? cur-page)]
+           [:span
+            {:on-click
+             #(when prev-enabled?
+                (re-frame/dispatch
+                 [::select-prev-page
+                  db-id @pagination-state]))
+             :style    {:cursor (when prev-enabled? "pointer")
+                        :color  (when-not prev-enabled? "rgba(40,40,40,.3)")}}
+            (str \u25C4 " PREVIOUS ")])
 
-           [:select
-            {:value     cur-page
-             :on-change #(re-frame/dispatch
-                          [::re-frame-datatable.core/select-page
-                           db-id @pagination-state
-                           (js/parseInt (-> % .-target .-value))])}
-            (doall
-             (for [page-index (range total-pages)]
-               ^{:key page-index}
-               [:option
-                {:value page-index}
-                (str "Page " (inc page-index) " of " total-pages)]))]
+         [:select
+          {:value     cur-page
+           :on-change #(re-frame/dispatch
+                        [::select-page
+                         db-id @pagination-state
+                         (js/parseInt (-> % .-target .-value))])}
+          (doall
+           (for [page-index (range total-pages)]
+             ^{:key page-index}
+             [:option
+              {:value page-index}
+              (str "Page " (inc page-index) " of " total-pages)]))]
 
-           (let [next-enabled? (< cur-page (dec total-pages))]
-             [:span
-              {:style    {:cursor (when next-enabled? "pointer")
-                          :color  (when-not next-enabled? "rgba(40,40,40,.3)")}
-               :on-click #(when next-enabled?
-                            (re-frame/dispatch
-                             [::re-frame-datatable.core/select-next-page
-                              db-id @pagination-state]))}
-              (str " NEXT " \u25BA)])])))))
+         (let [next-enabled? (< cur-page (dec total-pages))]
+           [:span
+            {:style    {:cursor (when next-enabled? "pointer")
+                        :color  (when-not next-enabled? "rgba(40,40,40,.3)")}
+             :on-click #(when next-enabled?
+                          (re-frame/dispatch
+                           [::select-next-page
+                            db-id @pagination-state]))}
+            (str " NEXT " \u25BA)])]))))
 
 
 ; --- Views ---
@@ -409,38 +407,38 @@
                    "no items")]]
 
                (doall
-                 (for [[i data-entry] items]
-                   ^{:key i}
-                   [:tr
-                    (merge
-                      {}
-                      (when tr-class-fn
-                        (css-class-str (tr-class-fn data-entry))))
+                (for [[i data-entry] items]
+                  ^{:key i}
+                  [:tr
+                   (merge
+                    {}
+                    (when tr-class-fn
+                      (css-class-str (tr-class-fn data-entry))))
 
-                    (when (::enabled? selection)
+                   (when (::enabled? selection)
+                     [:td
+                      [:input {:type      "checkbox"
+                               :checked   (contains?
+                                           (::selected-indexes selection) i)
+                               :on-change #(re-frame/dispatch
+                                            [::change-row-selection
+                                             db-id i
+                                             (-> % .-target .-checked)])}]])
+
+                   (doall
+                    (for [{:keys [::column-key ::render-fn ::td-class-fn]}
+                          columns-def]
+                      ^{:key (str i \- column-key)}
                       [:td
-                       [:input {:type      "checkbox"
-                                :checked   (contains?
-                                            (::selected-indexes selection) i)
-                                :on-change #(re-frame/dispatch
-                                             [::change-row-selection
-                                              db-id i
-                                              (-> % .-target .-checked)])}]])
+                       (merge {}
+                              (when td-class-fn
+                                (css-class-str
+                                 (td-class-fn
+                                  (get-in data-entry column-key) data-entry))))
 
-                    (doall
-                     (for [{:keys [::column-key ::render-fn ::td-class-fn]}
-                           columns-def]
-                       ^{:key (str i \- column-key)}
-                       [:td
-                        (merge {}
-                               (when td-class-fn
-                                 (css-class-str
-                                  (td-class-fn
-                                   (get-in data-entry column-key) data-entry))))
-
-                        (if render-fn
-                          [render-fn (get-in data-entry column-key) data-entry]
-                          (get-in data-entry column-key))]))])))]
+                       (if render-fn
+                         [render-fn (get-in data-entry column-key) data-entry]
+                         (get-in data-entry column-key))]))])))]
 
             (when footer-component
               [:tfoot
