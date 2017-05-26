@@ -163,7 +163,7 @@
     [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label formatters/play-count-th}]
     nil
     [{:data-tab  "th-fourammter-source"
@@ -222,7 +222,7 @@
     [{::dt/column-key [:index]}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label formatters/play-count-th}]
     {::dt/table-classes ["ui" "celled" "stripped" "table"]}
     [{:data-tab  "th-fourammter-source"
@@ -262,7 +262,7 @@
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"}]
     {::dt/pagination    {::dt/enabled? true
                          ::dt/per-page 5}
@@ -305,7 +305,7 @@
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"}]
     {::dt/pagination    {::dt/enabled? true
                          ::dt/per-page 5}
@@ -356,7 +356,7 @@
       ::dt/sorting      {::dt/enabled? true}}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"
       ::dt/sorting      {::dt/enabled? true}}]
     {::dt/table-classes ["ui" "table"]}
@@ -413,7 +413,7 @@
      {::dt/column-key   [:album]
       ::dt/column-label "Album"
       ::dt/render-fn    formatters/album-formatter}
-     {::dt/column-key   [:rating]
+     {::dt/column-key   [:stats :rating]
       ::dt/column-label "Rating"
       ::dt/render-fn    formatters/rating-formatter}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]}
@@ -463,7 +463,7 @@
     [::subs/basic-definition-data]
     [{::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
      ::dt/selection     {::dt/enabled? true}}
@@ -509,7 +509,7 @@
      {::dt/column-key   [:name]
       ::dt/column-label "Name"
       ::dt/sorting      {::dt/enabled? true}}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"
       ::dt/sorting      {::dt/enabled? true}}]
     {::dt/table-classes ["ui" "very" "basic" "collapsing" "celled" "table"]
@@ -582,7 +582,7 @@
       ::dt/column-label "Index"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes    ["ui" "celled" "table"]
      ::dt/footer-component table-views/total-play-count-footer}
@@ -609,7 +609,7 @@
       ::dt/column-label "Index"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play count"}]
     {::dt/table-classes         ["ui" "celled" "table"]
      ::dt/empty-tbody-component table-views/empty-tbody-formatter
@@ -660,10 +660,10 @@
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play Count"
       ::dt/td-class-fn  table-views/play-count-td-classes}
-     {::dt/column-key   [:rating]
+     {::dt/column-key   [:stats :rating]
       ::dt/column-label "Rating"
       ::dt/td-class-fn  table-views/rating-td-classes}]
     {::dt/table-classes ["ui" "celled" "table"]}
@@ -694,9 +694,9 @@
       ::dt/column-label "#"}
      {::dt/column-key   [:name]
       ::dt/column-label "Name"}
-     {::dt/column-key   [:play_count]
+     {::dt/column-key   [:stats :play_count]
       ::dt/column-label "Play Count"}
-     {::dt/column-key   [:rating]
+     {::dt/column-key   [:stats :rating]
       ::dt/column-label "Rating"}]
     {::dt/table-classes ["ui" "celled" "table"]
      ::dt/tr-class-fn   table-views/play-count-tr-classes}

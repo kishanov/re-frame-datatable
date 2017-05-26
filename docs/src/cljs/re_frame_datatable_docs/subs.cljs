@@ -17,7 +17,7 @@
   (fn [songs-list]
     (->> songs-list
          (take 5)
-         (map #(select-keys % [:name :index :play_count])))))
+         (map #(select-keys % [:name :index :stats])))))
 
 
 (re-frame/reg-sub
@@ -26,7 +26,7 @@
     (re-frame/subscribe [::basic-definition-data]))
   (fn [songs-list]
     (->> songs-list
-         (map :play_count)
+         (map #(get-in % [:stats :play_count]))
          (apply +))))
 
 
@@ -37,7 +37,7 @@
     (re-frame/subscribe [::songs-list]))
   (fn [songs-list]
     (->> songs-list
-         (map #(select-keys % [:name :index :play_count])))))
+         (map #(select-keys % [:name :index :stats])))))
 
 
 
@@ -48,7 +48,7 @@
   (fn [songs-list]
     (->> songs-list
          (take 5)
-         (map #(select-keys % [:index :name :artist :duration :album :rating])))))
+         (map #(select-keys % [:index :name :artist :duration :album])))))
 
 
 
@@ -59,7 +59,7 @@
   (fn [songs-list]
     (->> songs-list
          (take 7)
-         (map #(select-keys % [:index :name :rating :play_count])))))
+         (map #(select-keys % [:index :name :stats])))))
 
 
 (re-frame/reg-sub

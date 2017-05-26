@@ -43,7 +43,7 @@
 (defn play-count-tr-classes
   "For all songs that hasn't been played yet, define <tr> class as 'warning'"
   [song]
-  [(when-not (pos? (:play_count song))
+  [(when-not (pos? (get-in song [:stats :play_count]))
      "warning")])
 
 
