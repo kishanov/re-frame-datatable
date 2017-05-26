@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.5.2] - 2017-05-26
+### Added
+- Sorting to work with nested data paths (Thanks to @ChrisHacker)
+- Sorting on values other than the column-key value (Thanks to @ChrisHacker)
+- Support ints in ::column-key (allows datatable to work with elements in collection that have nested vectors)
+
+### Fixed
+- Update ClojureScript 1.9.542 and fix spec ns
+
+
 ## [0.5.1] - 2017-01-17
 ### Added
 - ::column-label became optional
