@@ -2,7 +2,7 @@
   (:require-macros [reagent.ratom :refer [reaction]])
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame :refer [trim-v]]
-            [cljs.spec :as s]))
+            [cljs.spec.alpha :as s]))
 
 
 ; --- Model (spec) ---
