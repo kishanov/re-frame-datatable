@@ -9,7 +9,7 @@
 
 
 
-(defn sorting []
+(defn enable-sorting []
   [:div
    [:div
     "Sorting is enabled on per-column basis. To make column sortable just add "
@@ -64,3 +64,30 @@
      margin-left: .5em;
  }"]])}]]])
 
+
+
+(defn custom-sorting-fn []
+  [:div
+   [:div
+    "To define custom comparator for sorting function, provide "
+    [:code.inline-code "::comp-fn"] " with the function that accepts a function that will be used internally as a third argument to "
+    [:a {:href "https://clojuredocs.org/clojure.core/sort-by"} "sort-by"] " (DataTable uses it internally in to sort table data). "
+    "Note that DataTable requires a function, so things like keywords should be wrapped into function with proper signature."]
+
+   [components/tabs-wrapper
+    :sorting
+    [::subs/basic-definition-data]
+    [{::dt/column-key   [:index]
+      ::dt/column-label "#"}
+     {::dt/column-key   [:name]
+      ::dt/column-label "Name"}
+     {::dt/column-key   [:stats]
+      ::dt/column-label "Play count"
+      ::dt/sorting      {::dt/enabled? true
+                         ::dt/comp-fn  formatters/sort-play-count-comp}}]
+    {::dt/table-classes ["ui" "table"]}
+    [{:data-tab  "comparator-fn-source"
+      :label     "Comparator Fn Source"
+      :component (fn []
+                   [formatters/formatted-function-def
+                    (with-out-str (r/source formatters/sort-play-count-comp))])}]]])

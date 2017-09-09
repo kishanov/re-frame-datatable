@@ -87,7 +87,8 @@
                                     ["empty-dataset" "Empty Dataset" structure-sections/empty-dataset]]}
 
                         {:group    "Sorting"
-                         :sections [["sorting-basic" "Enabling Sorting" sorting-sections/sorting]]}
+                         :sections [["sorting-basic" "Enabling Sorting" sorting-sections/enable-sorting]
+                                    ["sorting-custom-comp-fn" "Custom Comparator" sorting-sections/custom-sorting-fn]]}
 
                         {:group    "Pagination"
                          :sections [["enabling-pagination" "Enabling Pagination" pagination-sections/enabling-pagination]

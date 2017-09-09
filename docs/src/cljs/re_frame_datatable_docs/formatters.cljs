@@ -84,3 +84,8 @@
   [:div
    {:data-tooltip "Play count"}
    [:i.music.icon]])
+
+
+
+(defn sort-play-count-comp [x y]
+  (compare (:play_count x) (:play_count y)))
