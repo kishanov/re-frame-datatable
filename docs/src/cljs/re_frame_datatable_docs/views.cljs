@@ -1,12 +1,15 @@
 (ns re-frame-datatable-docs.views
-  (:require [re-frame-datatable.core :as dt]
+  (:require [re-frame.core :as re-frame]
+            [reagent.core :as reagent]
+            [cljs.repl :as r]
+
+            [re-frame-datatable.core :as dt]
+            [re-frame-datatable.views :as dt-views]
+
             [re-frame-datatable-docs.subs :as subs]
             [re-frame-datatable-docs.events :as events]
-            [re-frame.core :as re-frame]
             [re-frame-datatable-docs.formatters :as formatters]
-            [re-frame-datatable-docs.table-views :as table-views]
-            [reagent.core :as reagent]
-            [cljs.repl :as r]))
+            [re-frame-datatable-docs.table-views :as table-views]))
 
 
 (defn sneak-peek-for-readme []
@@ -272,18 +275,18 @@
       :component (fn []
                    [:pre
                     [:code {:class "clojure"}
-                     "[dt/default-pagination-controls :pagination [::subs/pagination-data]]"]])}]
+                     "[dt-views/default-pagination-controls :pagination [::subs/pagination-data]]"]])}]
     (fn [dt-def]
       [:div.ui.grid
        [:div.row
         [:div.right.aligned.column
-         [dt/default-pagination-controls :pagination [::subs/pagination-data]]]]
+         [dt-views/default-pagination-controls :pagination [::subs/pagination-data]]]]
        [:div.row
         [:div.column
          dt-def]]
        [:div.row
         [:div.right.aligned.column
-         [dt/default-pagination-controls :pagination [::subs/pagination-data]]]]])]
+         [dt-views/default-pagination-controls :pagination [::subs/pagination-data]]]]])]
 
    [:div
     [:p
@@ -521,7 +524,7 @@
       [:div.ui.two.column.divided.grid
        [:div.column
         [:h5.ui.header "Table"]
-        [dt/default-pagination-controls :rows-selection-pagination-sorting [::subs/pagination-data]]
+        [dt-views/default-pagination-controls :rows-selection-pagination-sorting [::subs/pagination-data]]
         dt-def]
 
        [:div.column
@@ -625,7 +628,7 @@
       [:div.ui.grid
        [:div.row
         [:div.right.aligned.column
-         [dt/default-pagination-controls :empty-tbody [::subs/empty-dataset]]]]
+         [dt-views/default-pagination-controls :empty-tbody [::subs/empty-dataset]]]]
        [:div.row
         [:div.column
          dt-def]]])]])
