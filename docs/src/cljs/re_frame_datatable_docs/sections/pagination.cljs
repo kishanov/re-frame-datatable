@@ -108,3 +108,50 @@
         [:div {:style {:margin-bottom "1em"}}
          [:h5.ui.herader "GMAIL-like pagination controls"]
          [table-views/gmail-like-pagination :pagination-custom-controls [::subs/pagination-data]]]]])]])
+
+
+
+(defn per-page-selector []
+  [:div
+   [:div
+    "Per page count can be change via special event: " [:code.inline-code "::set-per-page-value"]]
+
+   [components/info-message
+    [:div
+     [:p
+      "Changing " [:code.inline-code "::per-page"] " value via event will also set the currnet page to 0"]]]
+
+   (let [dt-key :per-page-selector-example
+         dt-sub [::subs/pagination-data]]
+
+     [components/tabs-wrapper
+      dt-key
+      dt-sub
+      [{::dt/column-key   [:index]
+        ::dt/column-label "#"}
+       {::dt/column-key   [:name]
+        ::dt/column-label "Name"}
+       {::dt/column-key   [:stats :play_count]
+        ::dt/column-label "Play count"}]
+      {::dt/pagination    {::dt/enabled? true
+                           ::dt/per-page 5}
+       ::dt/table-classes ["ui" "table"]}
+      [{:data-tab  "default-per-page-controls-usage"
+        :label     "Default Per Page Usage"
+        :component (fn []
+                     [:pre
+                      [:code {:class "clojure"}
+                       (str
+                         "[dt-views/per-page-selector "
+                         dt-key
+                         dt-sub)]])}]
+      (fn [dt-def]
+        [:div.ui.grid
+         [:div.row
+          [:div.right.aligned.column
+           [dt-views/per-page-selector dt-key dt-sub]
+           [:span {:style {:min-width "1em"}}]
+           [dt-views/default-pagination-controls dt-key dt-sub]]]
+         [:div.row
+          [:div.column
+           dt-def]]])])])

@@ -92,6 +92,7 @@
 
                         {:group    "Pagination"
                          :sections [["enabling-pagination" "Enabling Pagination" pagination-sections/enabling-pagination]
+                                    ["per-page-selector" "Setting Page Size" pagination-sections/per-page-selector]
                                     ["custom-pagination-controls" "Custom Pagination Controls" pagination-sections/custom-pagination-controls]]}
 
                         {:group    "Custom Cell Rendering"

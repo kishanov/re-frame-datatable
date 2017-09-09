@@ -89,6 +89,7 @@
 
 
 ; --- Events ---
+; ----------------------------------------------------------------------------------------------------------------------
 
 (re-frame/reg-event-db
   ::on-will-mount
@@ -130,22 +131,6 @@
     (update-in db root-db-path dissoc db-id)))
 
 
-(re-frame/reg-event-db
-  ::set-sort-key
-  [trim-v]
-  (fn [db [db-id sort-key comp-fn]]
-    (let [comp-fn (or comp-fn <)
-          cur-sort-key (get-in db (sort-key-db-path db-id))
-          cur-sort-comp (get-in db (sort-comp-order-db-path db-id) ::sort-asc)]
-      (if (= cur-sort-key sort-key)
-        (assoc-in db (sort-comp-order-db-path db-id)
-                  (get {::sort-asc  ::sort-desc
-                        ::sort-desc ::sort-asc} cur-sort-comp))
-        (-> db
-            (assoc-in (sort-key-db-path db-id) sort-key)
-            (assoc-in (sort-comp-fn-db-path db-id) comp-fn)
-            (assoc-in (sort-comp-order-db-path db-id) cur-sort-comp))))))
-
 
 (re-frame/reg-event-db
   ::change-state-value
@@ -154,34 +139,9 @@
     (assoc-in db (vec (concat (state-db-path db-id) state-path)) new-val)))
 
 
-(re-frame/reg-event-db
-  ::change-row-selection
-  [trim-v]
-  (fn [db [db-id row-index selected?]]
-    (update-in db (vec (concat (state-db-path db-id) [::selection ::selected-indexes]))
-               (if selected? conj disj) row-index)))
-
-
-(re-frame/reg-event-db
-  ::change-table-selection
-  [trim-v]
-  (fn [db [db-id indexes selected?]]
-    (let [selection-indexes-path (vec (concat (state-db-path db-id) [::selection ::selected-indexes]))
-          selection (get-in db selection-indexes-path)]
-      (assoc-in db selection-indexes-path
-                (if selected?
-                  (clojure.set/union (set indexes) selection)
-                  (clojure.set/difference selection (set indexes)))))))
-
-
-(re-frame/reg-event-db
-  ::unselect-all-rows
-  [trim-v]
-  (fn [db [db-id]]
-    (assoc-in db (vec (concat (state-db-path db-id) [::selection ::selected-indexes])) #{})))
-
 
 ; --- Subs ---
+; ----------------------------------------------------------------------------------------------------------------------
 
 (re-frame/reg-sub
   ::state
@@ -219,17 +179,24 @@
        ::state         state})))
 
 
-(re-frame/reg-sub
-  ::selected-items
-  (fn [[_ db-id data-sub]]
-    [(re-frame/subscribe data-sub)
-     (re-frame/subscribe [::state db-id])])
+; --- Sorting ---
+; ----------------------------------------------------------------------------------------------------------------------
 
-  (fn [[items state]]
-    (->> items
-         (map-indexed vector)
-         (filter (fn [[idx _]] (contains? (get-in state [::selection ::selected-indexes]) idx)))
-         (map second))))
+(re-frame/reg-event-db
+  ::set-sort-key
+  [trim-v]
+  (fn [db [db-id sort-key comp-fn]]
+    (let [comp-fn (or comp-fn <)
+          cur-sort-key (get-in db (sort-key-db-path db-id))
+          cur-sort-comp (get-in db (sort-comp-order-db-path db-id) ::sort-asc)]
+      (if (= cur-sort-key sort-key)
+        (assoc-in db (sort-comp-order-db-path db-id)
+                  (get {::sort-asc  ::sort-desc
+                        ::sort-desc ::sort-asc} cur-sort-comp))
+        (-> db
+            (assoc-in (sort-key-db-path db-id) sort-key)
+            (assoc-in (sort-comp-fn-db-path db-id) comp-fn)
+            (assoc-in (sort-comp-order-db-path db-id) cur-sort-comp))))))
 
 
 
@@ -253,36 +220,88 @@
                          (mapv (fn [i] [(first i) (last i)])))}))))
 
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::select-next-page
   [trim-v]
-  (fn [db [db-id pagination-state]]
-    (let [pagination-db-path (vec (concat (state-db-path db-id) [::pagination]))
-          {:keys [::cur-page ::pages]} pagination-state]
-      (assoc-in db (conj pagination-db-path ::cur-page)
-                (min (inc cur-page) (dec (count pages)))))))
+  (fn [{:keys [db]} [db-id pagination-state]]
+    (let [{:keys [::cur-page ::pages]} pagination-state]
+      {:db       db
+       :dispatch [::change-state-value db-id [::pagination ::cur-page] (min (inc cur-page) (dec (count pages)))]})))
 
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::select-prev-page
   [trim-v]
-  (fn [db [db-id pagination-state]]
-    (let [pagination-db-path (vec (concat (state-db-path db-id) [::pagination]))
-          {:keys [::cur-page]} pagination-state]
-      (assoc-in db (conj pagination-db-path ::cur-page)
-                (max (dec cur-page) 0)))))
+  (fn [{:keys [db]} [db-id pagination-state]]
+    (let [{:keys [::cur-page]} pagination-state]
+      {:db       db
+       :dispatch [::change-state-value db-id [::pagination ::cur-page] (max (dec cur-page) 0)]})))
+
+
+(re-frame/reg-event-fx
+  ::select-page
+  [trim-v]
+  (fn [{:keys [db]} [db-id pagination-state page-idx]]
+    {:db       db
+     :dispatch [::change-state-value db-id [::pagination ::cur-page] page-idx]}))
+
+
+(re-frame/reg-event-fx
+  ::set-per-page-value
+  [trim-v]
+  (fn [{:keys [db]} [db-id pagination-state per-page]]
+    {:db         db
+     :dispatch-n [[::select-page db-id pagination-state 0]
+                  [::change-state-value db-id [::pagination ::per-page] per-page]]}))
+
+
+
+; --- Rows Selection ---
+; ----------------------------------------------------------------------------------------------------------------------
+
+(re-frame/reg-sub
+  ::selected-items
+  (fn [[_ db-id data-sub]]
+    [(re-frame/subscribe data-sub)
+     (re-frame/subscribe [::state db-id])])
+
+  (fn [[items state]]
+    (->> items
+         (map-indexed vector)
+         (filter (fn [[idx _]] (contains? (get-in state [::selection ::selected-indexes]) idx)))
+         (map second))))
 
 
 (re-frame/reg-event-db
-  ::select-page
+  ::change-row-selection
   [trim-v]
-  (fn [db [db-id pagination-state page-idx]]
-    (let [pagination-db-path (vec (concat (state-db-path db-id) [::pagination]))
-          {:keys [::pages]} pagination-state]
-      (assoc-in db (conj pagination-db-path ::cur-page) page-idx))))
+  (fn [db [db-id row-index selected?]]
+    (update-in db (vec (concat (state-db-path db-id) [::selection ::selected-indexes]))
+               (if selected? conj disj) row-index)))
+
+
+(re-frame/reg-event-db
+  ::change-table-selection
+  [trim-v]
+  (fn [db [db-id indexes selected?]]
+    (let [selection-indexes-path (vec (concat (state-db-path db-id) [::selection ::selected-indexes]))
+          selection (get-in db selection-indexes-path)]
+      (assoc-in db selection-indexes-path
+                (if selected?
+                  (clojure.set/union (set indexes) selection)
+                  (clojure.set/difference selection (set indexes)))))))
+
+
+(re-frame/reg-event-db
+  ::unselect-all-rows
+  [trim-v]
+  (fn [db [db-id]]
+    (assoc-in db (vec (concat (state-db-path db-id) [::selection ::selected-indexes])) #{})))
+
 
 
 ; --- Views ---
+; ----------------------------------------------------------------------------------------------------------------------
 
 (defn datatable [db-id data-sub columns-def & [options]]
   {:pre [(or (s/valid? ::db-id db-id)
