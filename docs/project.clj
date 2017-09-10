@@ -4,7 +4,7 @@
                  [figwheel-sidecar "0.5.13"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.1"]
-                 [re-frame-datatable "0.6.0-SNAPSHOT"]]
+                 [re-frame-datatable "0.6.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]]
 
