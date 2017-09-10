@@ -11,103 +11,117 @@
 
 
 (defn enabling-pagination []
-  [:div
-   [:div
-    "Pagination can be enabled via " [:code.inline-code "::pagination"] " key. There are 2 options:"
-    [:ul.ui.list
-     [:li [:code.inline-code "::enabled?"] " - boolean to define if pagination should be enabled"]
-     [:li [:code.inline-code "::per-page"] " - integer to define how many elements should be shown per page (default is 10)"]]]
+  (let [dt-key :pagination-basic
+        dt-sub [::subs/pagination-data]]
 
-   [components/warning-message
     [:div
+     [:div
+      "Pagination can be enabled via " [:code.inline-code "::pagination"] " key. There are 2 options:"
+      [:ul.ui.list
+       [:li [:code.inline-code "::enabled?"] " - boolean to define if pagination should be enabled"]
+       [:li [:code.inline-code "::per-page"] " - integer to define how many elements should be shown per page (default is 10)"]]]
+
+     [components/warning-message
+      [:div
+       [:p
+        "DataTable's pagination controls are not rendered together with DataTable. There are 2 reasons for it:"]
+       [:ul
+        [:li "DataTable is not opinionated about where to put pagination controls"]
+        [:li "DataTable is not opinionated how pagination controls will look like"]]]
+      "Important"]
+
      [:p
-      "DataTable's pagination controls are not rendered together with DataTable. There are 2 reasons for it:"]
-     [:ul
-      [:li "DataTable is not opinionated about where to put pagination controls"]
-      [:li "DataTable is not opinionated how pagination controls will look like"]]]
-    "Important"]
+      "DataTable ships with additional component " [:code.inline-code "default-pagination-controls"]
+      ", that accepts 2 arguments: " [:code.inline-code "datatable-key"] " and " [:code.inline-code "data-sub"]
+      " which should be the same as passed to " [:code.inline-code "datatable"] " component itself"]
 
-   [:p
-    "DataTable ships with additional component " [:code.inline-code "default-pagination-controls"]
-    ", that accepts 2 arguments: " [:code.inline-code "datatable-key"] " and " [:code.inline-code "data-sub"]
-    " which should be the same as passed to " [:code.inline-code "datatable"] " component itself"]
-
-   [components/tabs-wrapper
-    :pagination
-    [::subs/pagination-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
-     {::dt/column-key   [:name]
-      ::dt/column-label "Name"}
-     {::dt/column-key   [:stats :play_count]
-      ::dt/column-label "Play count"}]
-    {::dt/pagination    {::dt/enabled? true
-                         ::dt/per-page 5}
-     ::dt/table-classes ["ui" "table"]}
-    [{:data-tab  "default-pagination-controls-usage"
-      :label     "Default Pagination Controls Usage"
-      :component (fn []
-                   [:pre
-                    [:code {:class "clojure"}
-                     "[dt-views/default-pagination-controls :pagination [::subs/pagination-data]]"]])}]
-    (fn [dt-def]
-      [:div.ui.grid
-       [:div.row
-        [:div.right.aligned.column
-         [dt-views/default-pagination-controls :pagination [::subs/pagination-data]]]]
-       [:div.row
-        [:div.column
-         dt-def]]
-       [:div.row
-        [:div.right.aligned.column
-         [dt-views/default-pagination-controls :pagination [::subs/pagination-data]]]]])]])
+     [components/tabs-wrapper
+      dt-key
+      dt-sub
+      [{::dt/column-key   [:index]
+        ::dt/column-label "#"}
+       {::dt/column-key   [:name]
+        ::dt/column-label "Name"}
+       {::dt/column-key   [:stats :play_count]
+        ::dt/column-label "Play count"}]
+      {::dt/pagination    {::dt/enabled? true
+                           ::dt/per-page 5}
+       ::dt/table-classes ["ui" "table"]}
+      [{:data-tab  "default-pagination-controls-usage"
+        :label     "Default Pagination Controls Usage"
+        :component (fn []
+                     [:pre
+                      [:code {:class "clojure"}
+                       (str
+                         "[dt-views/default-pagination-controls "
+                         dt-key
+                         \space
+                         dt-sub)]])}]
+      (fn [dt-def]
+        [:div.ui.grid
+         [:div.row
+          [:div.right.aligned.column
+           [dt-views/default-pagination-controls dt-key dt-sub]]]
+         [:div.row
+          [:div.column
+           dt-def]]
+         [:div.row
+          [:div.right.aligned.column
+           [dt-views/default-pagination-controls dt-key dt-sub]]]])]]))
 
 
 
 (defn custom-pagination-controls []
-  [:div
-   [:div
-    [:p
-     "It is possible to build your own custom pagiation controls. DataTable exposes single subscription - " [:code.inline-code "::pagination-state"]
-     " - that accepts 2 arguments: " [:code.inline-code "datatable-key"] " and " [:code.inline-code "data-sub"]
-     " That subscription returns a map with following keys:"]
-    [:ul
-     [:li [:code.inline-code "::cur-page"] " - an integer, which represents current page (0-based indexing)"]
-     [:li [:code.inline-code "::per-page"] " - an integer, which represents maximum count of elements per each page"]
-     [:li [:code.inline-code "::pages"] " - a vector of tuples of length " [:code.inline-code "::per-page"]
-      ", each tuple has 2 numbers for each page: " [:code.inline-code "[first-element-index last-element-index]"] " (indexing is zero based)"
-      "For example, " [:code.inline-code "[[0 4][5 9][10 12]"]]]
-    [:p "See the example below to see how 2 custom pagination components are defined. It's easier to copy and modify their source, then to properly document how they work :)"]]
+  (let [dt-key :pagination-custom-controls
+        dt-sub [::subs/pagination-data]]
 
-   [components/tabs-wrapper
-    :pagination-custom-controls
-    [::subs/pagination-data]
-    [{::dt/column-key   [:index]
-      ::dt/column-label "#"}
-     {::dt/column-key   [:name]
-      ::dt/column-label "Name"}
-     {::dt/column-key   [:stats :play_count]
-      ::dt/column-label "Play count"}]
-    {::dt/pagination    {::dt/enabled? true
-                         ::dt/per-page 5}
-     ::dt/table-classes ["ui" "table"]}
-    [{:data-tab  "pagination-controls-source"
-      :label     "Pagination Controls Source"
-      :component (fn []
-                   [formatters/formatted-function-def
-                    (with-out-str (r/source table-views/basic-pagination))
-                    (with-out-str (r/source table-views/gmail-like-pagination))])}]
-    (fn [dt-def]
-      [:div.ui.two.column.grid
-       [:div.column dt-def]
-       [:div.column
-        [:div {:style {:margin-bottom "1em"}}
-         [:h5.ui.herader "Basic pagination controls"]
-         [table-views/basic-pagination :pagination-custom-controls [::subs/pagination-data]]]
+    [:div
+     [:div
+      [:p
+       "It is possible to build your own custom pagiation controls. DataTable exposes single subscription - " [:code.inline-code "::pagination-state"]
+       " - that accepts 2 arguments: " [:code.inline-code "datatable-key"] " and " [:code.inline-code "data-sub"]
+       " That subscription returns a map with following keys:"]
+      [:ul
+       [:li [:code.inline-code "::cur-page"] " - an integer, which represents current page (0-based indexing)"]
+       [:li [:code.inline-code "::per-page"] " - an integer, which represents maximum count of elements per each page"]
+       [:li [:code.inline-code "::pages"] " - a vector of tuples of length " [:code.inline-code "::per-page"]
+        ", each tuple has 2 numbers for each page: " [:code.inline-code "[first-element-index last-element-index]"] " (indexing is zero based)"
+        "For example, " [:code.inline-code "[[0 4][5 9][10 12]"]]]
+      [:p "See the example below to see how 2 custom pagination components are defined. It's easier to copy and modify their source, then to properly document how they work :)"]]
 
-        [:div {:style {:margin-bottom "1em"}}
-         [:h5.ui.herader "GMAIL-like pagination controls"]
-         [table-views/gmail-like-pagination :pagination-custom-controls [::subs/pagination-data]]]]])]])
+     [components/tabs-wrapper
+      dt-key
+      dt-sub
+      [{::dt/column-key   [:index]
+        ::dt/column-label "#"}
+       {::dt/column-key   [:name]
+        ::dt/column-label "Name"}
+       {::dt/column-key   [:stats :play_count]
+        ::dt/column-label "Play count"}]
+      {::dt/pagination    {::dt/enabled? true
+                           ::dt/per-page 5}
+       ::dt/table-classes ["ui" "table"]}
+      [{:data-tab  "pagination-controls-source"
+        :label     "Pagination Controls Source"
+        :component (fn []
+                     [formatters/formatted-function-def
+                      (with-out-str (r/source table-views/basic-pagination))
+                      (with-out-str (r/source table-views/gmail-like-pagination))])}]
+      (fn [dt-def]
+        [:div.ui.two.column.grid
+         [:div.column dt-def]
+         [:div.column
+          [:div {:style {:margin-bottom "1em"}}
+           [:h5.ui.herader "Basic pagination controls"]
+           [table-views/basic-pagination dt-key dt-sub]]
+
+          [:div {:style {:margin-bottom "1em"}}
+           [:h5.ui.herader "GMAIL-like pagination controls"]
+           [table-views/gmail-like-pagination dt-key dt-sub]]
+
+          [:div {:style {:margin-bottom "1em"}}
+           [:h5.ui.herader "Radio Per Page Selector"]
+           [table-views/per-page-radio-selector dt-key dt-sub]]]])]]))
 
 
 
@@ -144,6 +158,7 @@
                        (str
                          "[dt-views/per-page-selector "
                          dt-key
+                         \space
                          dt-sub)]])}]
       (fn [dt-def]
         [:div.ui.grid

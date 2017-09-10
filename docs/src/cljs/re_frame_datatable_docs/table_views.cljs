@@ -119,3 +119,28 @@
                          (re-frame/dispatch [::re-frame-datatable.core/select-next-page db-id @pagination-state]))
             :class    (when-not next-enabled? "disabled")}
            [:i.right.chevron.icon]]]]))))
+
+
+
+(defn per-page-radio-selector [dt-id data-sub]
+  (let [pagination-state (re-frame/subscribe [::re-frame-datatable.core/pagination-state dt-id data-sub])
+        per-page-values [5 10 15]]
+
+    (fn []
+      (let [{:keys [::re-frame-datatable.core/per-page]} @pagination-state]
+        [:div.ui.form
+         [:div.inilne.fields
+          (doall
+            (for [per-page-option per-page-values]
+              ^{:key per-page-option}
+              [:div.field
+               [:input
+                {:type      :radio
+                 :on-change #(re-frame/dispatch [::re-frame-datatable.core/set-per-page-value
+                                                 dt-id data-sub
+                                                 (js/parseInt (-> % .-target .-name))])
+                 :name      per-page-option
+                 :class     "hidden"
+                 :checked   (= per-page per-page-option)}]
+               [:label per-page-option]]))]]))))
+
