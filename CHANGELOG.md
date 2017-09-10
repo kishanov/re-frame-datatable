@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.6.0] - 2017-09-09
+### Breaking
+- Moved default-pagination-controls view component to new namespace: re-frame-datatable.views
+- Reorganized documentation in a new way (including subsections)
+
+### Changed
+- Update to ClojureScript 1.9.908, re-frame 0.10.1 and reagent 0.7.0
+
+### Added
+- Ability to change pagination size via events (+ default page size selector control)
+- Support for custom sorting comparator function via ::comp-fn
+
+### Fixed
+- Fixed bug with incorrect ::cure-page calculation when data-source has changed and this page is not exist
+- Fixed propagation of options via :component-did-update
+
+
 ## [0.5.2] - 2017-05-26
 ### Added
 - Sorting to work with nested data paths (Thanks to @ChrisHacker)
